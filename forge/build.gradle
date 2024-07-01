@@ -79,6 +79,12 @@ dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
     compileOnly project(":common")
     annotationProcessor("org.spongepowered:mixin:0.8.5-SNAPSHOT:processor")
+
+    implementation "me.shedaniel:RoughlyEnoughItems-forge:$rei_version"
+
+    implementation "me.shedaniel.cloth:cloth-config-forge:$cloth_config_version"
+    implementation "dev.architectury:architectury-forge:$architectury_version"
+
 }
 
 tasks.withType(JavaCompile).configureEach {

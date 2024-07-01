@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @REIPluginCommon
-public class ReiPlugin implements REIServerPlugin{
+public class ReiPlugin implements REIServerPlugin {
  // @Override
  // public void registerRecipeTransferHandlers(IRecipeTransferRegistration registration) {
  //   registration.addRecipeTransferHandler(new CraftingStationTransferInfo());
