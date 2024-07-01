@@ -5,7 +5,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Tooltip;
 import tfar.craftingstation.CraftingStationMenu;
-import tfar.craftingstation.network.PacketHandler;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.resources.ResourceLocation;
@@ -66,10 +65,6 @@ public class CraftingStationScreen extends AbstractContainerScreen<CraftingStati
     boolean b = super.hasClickedOutside(mouseX, mouseY, guiLeftIn, guiTopIn, mouseButton) &&
             (!menu.hasSideContainers || !isHovering(-126, -16, 126, 32 + imageHeight, mouseX, mouseY));
     return b;
-  }
-
-  public void changeContainer(int container){
-    this.menu.changeContainer(container);
   }
 
   @Override

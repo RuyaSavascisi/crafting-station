@@ -3,7 +3,7 @@ package tfar.craftingstation;
 import net.minecraft.world.inventory.*;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import tfar.craftingstation.init.ModMenuTypes;
-import tfar.craftingstation.network.PacketHandler;
+import tfar.craftingstation.network.PacketHandlerForge;
 import tfar.craftingstation.network.S2CLastRecipePacket;
 import tfar.craftingstation.slot.BigSlot;
 import tfar.craftingstation.slot.SlotFastCraft;
@@ -364,7 +364,7 @@ public class CraftingStationMenu extends AbstractContainerMenu {
         players.forEach(otherPlayer -> {
             // safe cast since hasSameContainerOpen does class checks
             ((CraftingStationMenu) otherPlayer.containerMenu).lastRecipe = lastRecipe;
-            PacketHandler.INSTANCE.sendTo(new S2CLastRecipePacket(lastRecipe), otherPlayer.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+            PacketHandlerForge.INSTANCE.sendTo(new S2CLastRecipePacket(lastRecipe), otherPlayer.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
         });
     }
 

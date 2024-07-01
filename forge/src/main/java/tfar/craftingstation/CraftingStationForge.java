@@ -28,7 +28,7 @@ import tfar.craftingstation.datagen.ModDatagen;
 import tfar.craftingstation.init.ModBlockEntityTypes;
 import tfar.craftingstation.init.ModBlocks;
 import tfar.craftingstation.init.ModMenuTypes;
-import tfar.craftingstation.network.PacketHandler;
+import tfar.craftingstation.network.PacketHandlerForge;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(CraftingStation.MOD_ID)
@@ -53,6 +53,7 @@ public class CraftingStationForge {
         if (FMLEnvironment.dist.isClient()) {
             ModClientForge.setup(iEventBus);
         }
+        CraftingStation.init();
     }
 
     public static final Configs.Server SERVER;
@@ -77,7 +78,6 @@ public class CraftingStationForge {
     }
 
     private void setup(final FMLCommonSetupEvent event) {
-        PacketHandler.registerMessages(CraftingStation.MOD_ID);
     }
 
     private void enqueueIMC(final InterModEnqueueEvent event) {

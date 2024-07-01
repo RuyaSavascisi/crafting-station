@@ -3,6 +3,7 @@ package tfar.craftingstation;
 import net.minecraft.resources.ResourceLocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tfar.craftingstation.network.PacketHandler;
 
 // This class is part of the common project meaning it is shared between all supported loaders. Code written here can only
 // import and access the vanilla codebase, libraries used by vanilla, and optionally third party libraries that provide
@@ -18,6 +19,7 @@ public class CraftingStation {
     // write the majority of your code here and load it from your loader specific projects. This example has some
     // code that gets invoked by the entry point of the loader specific projects.
     public static void init() {
+        PacketHandler.registerPackets();
     }
 
     public static ResourceLocation id(String path) {

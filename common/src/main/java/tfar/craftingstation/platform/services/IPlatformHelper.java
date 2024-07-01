@@ -1,5 +1,12 @@
 package tfar.craftingstation.platform.services;
 
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import tfar.craftingstation.network.S2CModPacket;
+
+import java.util.function.Function;
+
 public interface IPlatformHelper {
 
     /**
@@ -33,4 +40,10 @@ public interface IPlatformHelper {
 
         return isDevelopmentEnvironment() ? "development" : "production";
     }
+
+    <MSG extends S2CModPacket> void registerClientPacket(Class<MSG> packetLocation, Function<FriendlyByteBuf,MSG> reader);
+
+    void sendToClient(S2CModPacket msg, ServerPlayer player);
+    void updateLastRecipeTemp(ResourceLocation rec);
+
 }
