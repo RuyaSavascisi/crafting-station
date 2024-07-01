@@ -29,11 +29,11 @@ public class S2CLastRecipePacket {
 
 
   public S2CLastRecipePacket(FriendlyByteBuf buf) {
-    rec = new ResourceLocation(buf.readUtf());
+    rec = buf.readResourceLocation();
   }
 
   public void encode(FriendlyByteBuf buf) {
-    buf.writeUtf(rec.toString());
+    buf.writeResourceLocation(rec);
   }
 
   @SuppressWarnings("unchecked")

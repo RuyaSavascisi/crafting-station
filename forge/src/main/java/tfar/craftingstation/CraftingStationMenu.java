@@ -122,7 +122,7 @@ public class CraftingStationMenu extends AbstractContainerMenu {
             BlockEntity te = world.getBlockEntity(neighbor);
             if (te != null && !(te instanceof CraftingStationBlockEntity)) {
                 // if blacklisted, skip checks entirely
-                if (ForgeRegistries.BLOCK_ENTITY_TYPES.tags().getTag(CraftingStation.blacklisted).contains(te.getType()))
+                if (ForgeRegistries.BLOCK_ENTITY_TYPES.tags().getTag(CraftingStationForge.blacklisted).contains(te.getType()))
                     continue;
                 if (te instanceof Container container && !container.stillValid(player)) {
                     continue;
@@ -159,8 +159,8 @@ public class CraftingStationMenu extends AbstractContainerMenu {
         return world.getRecipeManager().getRecipeFor(RecipeType.CRAFTING,inv,world).stream().findFirst().orElse(null);
     }
 
-    //                CraftingStation.LOGGER.error("Bad recipe found: " + recipe.getId().toString());
-    //                CraftingStation.LOGGER.error(e.getMessage());
+    //                CraftingStationForge.LOGGER.error("Bad recipe found: " + recipe.getId().toString());
+    //                CraftingStationForge.LOGGER.error(e.getMessage());
     //                player.sendMessage(new TranslatableComponent("text.crafting_station.error", recipe.getId().toString()).withStyle(ChatFormatting.DARK_RED), Util.NIL_UUID);
 
     private void addOwnSlots() {

@@ -2,7 +2,6 @@ package tfar.craftingstation;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -17,10 +16,12 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.registries.RegisterEvent;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import tfar.craftingstation.client.ModClientForge;
 import tfar.craftingstation.datagen.ModDatagen;
 import tfar.craftingstation.init.ModBlockEntityTypes;
 import tfar.craftingstation.init.ModBlocks;
@@ -28,17 +29,16 @@ import tfar.craftingstation.init.ModMenuTypes;
 import tfar.craftingstation.network.PacketHandler;
 
 // The value here should match an entry in the META-INF/mods.toml file
-@Mod(CraftingStation.MODID)
-public class CraftingStation {
+@Mod(CraftingStation.MOD_ID)
+public class CraftingStationForge {
     // Directly reference a log4j logger.
 
-    public static final String MODID = "craftingstation";
     public static final TagKey<BlockEntityType<?>> blacklisted
-            = TagKey.create(Registries.BLOCK_ENTITY_TYPE, new ResourceLocation(MODID, "blacklisted"));
+            = TagKey.create(Registries.BLOCK_ENTITY_TYPE, CraftingStation.id("blacklisted"));
 
     public static final Logger LOGGER = LogManager.getLogger();
 
-    public CraftingStation() {
+    public CraftingStationForge() {
         // Register the setup method for modloading
         ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, SERVER_SPEC);
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, CLIENT_SPEC);
@@ -47,6 +47,9 @@ public class CraftingStation {
         iEventBus.addListener(this::enqueueIMC);
         iEventBus.addListener(ModDatagen::gather);
         iEventBus.addListener(RegistryEvents::block);
+        if (FMLEnvironment.dist.isClient()) {
+            ModClientForge.setup(iEventBus);
+        }
     }
 
     public static final Configs.Server SERVER;
@@ -65,7 +68,7 @@ public class CraftingStation {
 
 
     private void setup(final FMLCommonSetupEvent event) {
-        PacketHandler.registerMessages(MODID);
+        PacketHandler.registerMessages(CraftingStation.MOD_ID);
     }
 
     private void enqueueIMC(final InterModEnqueueEvent event) {
@@ -81,18 +84,15 @@ public class CraftingStation {
         @SubscribeEvent
         public static void block(final RegisterEvent event) {
             // register a new block here
-            event.register(Registries.BLOCK, modLoc("crafting_station"), () -> ModBlocks.crafting_station);
-            event.register(Registries.BLOCK, modLoc("crafting_station_slab"), () -> ModBlocks.crafting_station_slab);
+            event.register(Registries.BLOCK, CraftingStation.id("crafting_station"), () -> ModBlocks.crafting_station);
+            event.register(Registries.BLOCK, CraftingStation.id("crafting_station_slab"), () -> ModBlocks.crafting_station_slab);
             // register a new item here
             Item.Properties properties = new Item.Properties();
-            event.register(Registries.ITEM, modLoc("crafting_station"), () -> new BlockItem(ModBlocks.crafting_station, properties));
-            event.register(Registries.ITEM, modLoc("crafting_station_slab"), () -> new BlockItem(ModBlocks.crafting_station_slab, properties));
-            event.register(Registries.MENU, modLoc("crafting_station"), () -> ModMenuTypes.crafting_station);
-            event.register(Registries.BLOCK_ENTITY_TYPE, modLoc("crafting_station"), () -> ModBlockEntityTypes.crafting_station);
+            event.register(Registries.ITEM, CraftingStation.id("crafting_station"), () -> new BlockItem(ModBlocks.crafting_station, properties));
+            event.register(Registries.ITEM, CraftingStation.id("crafting_station_slab"), () -> new BlockItem(ModBlocks.crafting_station_slab, properties));
+            event.register(Registries.MENU, CraftingStation.id("crafting_station"), () -> ModMenuTypes.crafting_station);
+            event.register(Registries.BLOCK_ENTITY_TYPE, CraftingStation.id("crafting_station"), () -> ModBlockEntityTypes.crafting_station);
         }
 
-        public static ResourceLocation modLoc(String s) {
-            return new ResourceLocation(MODID, s);
-        }
     }
 }

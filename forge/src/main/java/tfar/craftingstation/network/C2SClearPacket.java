@@ -9,18 +9,18 @@ import java.util.function.Supplier;
 
 public class C2SClearPacket {
 
-  public void handle(Supplier<NetworkEvent.Context> ctx) {
-    Player player = ctx.get().getSender();
+    public void handle(Supplier<NetworkEvent.Context> ctx) {
+        Player player = ctx.get().getSender();
 
-    if (player == null) return;
+        if (player == null) return;
 
-    ctx.get().enqueueWork(() -> {
-      AbstractContainerMenu container = player.containerMenu;
-      if (container instanceof CraftingStationMenu craftingStationMenu) {
-        for (int i = 1; i < 10;i++)
-        craftingStationMenu.quickMoveStack(player,i);
-      }
-    });
-    ctx.get().setPacketHandled(true);
-  }
+        ctx.get().enqueueWork(() -> {
+            AbstractContainerMenu container = player.containerMenu;
+            if (container instanceof CraftingStationMenu craftingStationMenu) {
+                for (int i = 1; i < 10; i++)
+                    craftingStationMenu.quickMoveStack(player, i);
+            }
+        });
+        ctx.get().setPacketHandled(true);
+    }
 }

@@ -1,14 +1,13 @@
 package tfar.craftingstation.client;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import tfar.craftingstation.CraftingStation;
-import tfar.craftingstation.CraftingStationMenu;
+import tfar.craftingstation.CraftingStationForge;
 
 public class TabButton extends Button{
 
@@ -22,7 +21,7 @@ public class TabButton extends Button{
     this.stack = stack;
         this.craftingStationScreen = craftingStationScreen;
     }
-  public static final ResourceLocation TAB = new ResourceLocation(CraftingStation.MODID,"textures/gui/tabs.png");
+  public static final ResourceLocation TAB = CraftingStation.id("textures/gui/tabs.png");
 
 
   @Override

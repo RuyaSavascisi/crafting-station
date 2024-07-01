@@ -1,9 +1,9 @@
 package tfar.craftingstation.client;
 
+import tfar.craftingstation.CraftingStation;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Tooltip;
-import tfar.craftingstation.CraftingStation;
 import tfar.craftingstation.CraftingStationMenu;
 import tfar.craftingstation.network.C2SClearPacket;
 import tfar.craftingstation.network.PacketHandler;
@@ -21,7 +21,7 @@ public class CraftingStationScreen extends AbstractContainerScreen<CraftingStati
 
   private static final ResourceLocation SCROLLBAR_BACKGROUND_AND_TAB = new ResourceLocation("textures/gui/container/creative_inventory/tab_items.png");
 
-  public static final ResourceLocation SECONDARY_GUI_TEXTURE = new ResourceLocation(CraftingStation.MODID, "textures/gui/secondary.png");
+  public static final ResourceLocation SECONDARY_GUI_TEXTURE = CraftingStation.id("textures/gui/secondary.png");
 
   /**
    * Amount scrolled in inventory (0 = top, 1 = bottom)

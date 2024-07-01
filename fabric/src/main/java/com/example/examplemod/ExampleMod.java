@@ -1,6 +1,7 @@
 package com.example.examplemod;
 
 import net.fabricmc.api.ModInitializer;
+import tfar.craftingstation.CraftingStation;
 
 public class ExampleMod implements ModInitializer {
     
@@ -12,7 +13,7 @@ public class ExampleMod implements ModInitializer {
         // project.
 
         // Use Fabric to bootstrap the Common mod.
-        CommonClass.LOG.info("Hello Fabric world!");
-        CommonClass.init();
+        CraftingStation.LOG.info("Hello Fabric world!");
+        CraftingStation.init();
     }
 }

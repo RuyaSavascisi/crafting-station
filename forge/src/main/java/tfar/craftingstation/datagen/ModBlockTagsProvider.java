@@ -6,6 +6,7 @@ import net.minecraft.tags.BlockTags;
 import net.minecraftforge.common.data.BlockTagsProvider;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import tfar.craftingstation.CraftingStation;
+import tfar.craftingstation.CraftingStationForge;
 import tfar.craftingstation.init.ModBlocks;
 
 import javax.annotation.Nullable;
@@ -13,7 +14,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class ModBlockTagsProvider extends BlockTagsProvider {
     public ModBlockTagsProvider(PackOutput packOutput, CompletableFuture<HolderLookup.Provider> lookup, @Nullable ExistingFileHelper existingFileHelper) {
-        super(packOutput,lookup, CraftingStation.MODID, existingFileHelper);
+        super(packOutput,lookup, CraftingStation.MOD_ID, existingFileHelper);
     }
 
     @Override

@@ -55,8 +55,8 @@ public class CraftingStationSlabBlock extends SlabBlock implements EntityBlock {
   public void onRemove(BlockState state, @Nonnull Level worldIn, @Nonnull BlockPos pos, @Nonnull BlockState newState, boolean isMoving) {
     if (state.getBlock() != newState.getBlock()) {
       BlockEntity tileentity = worldIn.getBlockEntity(pos);
-      if (tileentity instanceof CraftingStationBlockEntity) {
-        CraftingStationBlock.dropItems(((CraftingStationBlockEntity) tileentity).input, worldIn, pos);
+      if (tileentity instanceof CraftingStationBlockEntity craftingStationBlock) {
+        CraftingStationBlock.dropItems(craftingStationBlock.input, worldIn, pos);
         worldIn.updateNeighbourForOutputSignal(pos, this);
       }
       super.onRemove(state, worldIn, pos, newState, isMoving);

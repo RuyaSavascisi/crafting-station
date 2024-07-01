@@ -31,7 +31,7 @@ public class ReiPlugin implements REIServerPlugin {
  /// @Nonnull
  // @Override
  // public ResourceLocation getPluginUid() {
- //   return new ResourceLocation(CraftingStation.MODID, CraftingStation.MODID);
+ //   return new ResourceLocation(CraftingStationForge.MODID, CraftingStationForge.MODID);
 //  }
 
 //  @Override
