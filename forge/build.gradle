@@ -84,6 +84,7 @@ dependencies {
     implementation fg.deobf("me.shedaniel.cloth:cloth-config-forge:$cloth_config_version")
     implementation fg.deobf("dev.architectury:architectury-forge:$architectury_version")
 
+    implementation fg.deobf("curse.maven:polymorph-388800:4928442")
 }
 
 tasks.withType(JavaCompile).configureEach {

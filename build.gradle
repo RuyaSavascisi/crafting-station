@@ -50,6 +50,12 @@ subprojects {
         }
         maven { url "https://maven.shedaniel.me/" }
 
+        maven {
+            url "https://cursemaven.com"
+            content {
+                includeGroup "curse.maven"
+            }
+        }
     }
 
     tasks.withType(JavaCompile).configureEach {

@@ -4,9 +4,11 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.InterModComms;
@@ -47,6 +49,7 @@ public class CraftingStationForge {
         iEventBus.addListener(this::enqueueIMC);
         iEventBus.addListener(ModDatagen::gather);
         iEventBus.addListener(RegistryEvents::block);
+        iEventBus.addListener(this::addCreative);
         if (FMLEnvironment.dist.isClient()) {
             ModClientForge.setup(iEventBus);
         }
@@ -66,6 +69,12 @@ public class CraftingStationForge {
         SERVER = specPair2.getLeft();
     }
 
+    private void addCreative(BuildCreativeModeTabContentsEvent event) {
+        if (event.getTabKey() == CreativeModeTabs.FUNCTIONAL_BLOCKS) {
+            event.accept(ModBlocks.crafting_station);
+            event.accept(ModBlocks.crafting_station_slab);
+        }
+    }
 
     private void setup(final FMLCommonSetupEvent event) {
         PacketHandler.registerMessages(CraftingStation.MOD_ID);
