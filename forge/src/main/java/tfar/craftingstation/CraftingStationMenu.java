@@ -589,7 +589,40 @@ public class CraftingStationMenu extends AbstractContainerMenu {
         containerStarts.add(Pair.of(left, right));
     }
 
+
     public NonNullList<ItemStack> getRemainingItems() {
         return lastRecipe != null && lastRecipe.matches(craftMatrix, world) ? lastRecipe.getRemainingItems(craftMatrix) : craftMatrix.getStackList();
+    }
+
+
+    public enum ButtonAction {
+        CLEAR,TAB_0,TAB_1,TAB_2,TAB_3,TAB_4,TAB_5;
+        static final ButtonAction[] VALUES = values();
+    }
+
+    @Override
+    public boolean clickMenuButton(Player pPlayer, int id) {
+        if (id < 0 || id >= ButtonAction.VALUES.length) return false;
+        ButtonAction buttonAction = ButtonAction.VALUES[id];
+        if (pPlayer instanceof ServerPlayer) {
+            switch (buttonAction) {
+                case CLEAR -> {
+                    for (int i = 1; i < 10; i++) quickMoveStack(player, i);
+                }
+                case TAB_0 -> {
+                }
+                case TAB_1 -> {
+                }
+                case TAB_2 -> {
+                }
+                case TAB_3 -> {
+                }
+                case TAB_4 -> {
+                }
+                case TAB_5 -> {
+                }
+            }
+        }
+        return true;
     }
 }

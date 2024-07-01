@@ -5,7 +5,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Tooltip;
 import tfar.craftingstation.CraftingStationMenu;
-import tfar.craftingstation.network.C2SClearPacket;
 import tfar.craftingstation.network.PacketHandler;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.world.entity.player.Inventory;
@@ -52,10 +51,14 @@ public class CraftingStationScreen extends AbstractContainerScreen<CraftingStati
 
       Tooltip tooltipC =  Tooltip.create(Component.translatable("text.crafting_station.clear"));
 
-      ClearButton clear =new ClearButton(leftPos + 85, topPos + 16,7,7, b -> PacketHandler.INSTANCE.sendToServer(new C2SClearPacket()));
+      ClearButton clear =new ClearButton(leftPos + 85, topPos + 16,7,7, b -> sendButtonToServer(CraftingStationMenu.ButtonAction.CLEAR));
       clear.setTooltip(tooltipC);
       this.addRenderableWidget(clear);
     }
+  }
+
+  private void sendButtonToServer(CraftingStationMenu.ButtonAction action) {
+    this.minecraft.gameMode.handleInventoryButtonClick(this.menu.containerId, action.ordinal());
   }
 
   @Override
