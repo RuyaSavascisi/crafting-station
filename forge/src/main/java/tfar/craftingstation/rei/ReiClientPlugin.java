@@ -8,7 +8,7 @@ import me.shedaniel.rei.api.client.registry.transfer.TransferHandlerRegistry;
 import me.shedaniel.rei.api.common.util.EntryStacks;
 import me.shedaniel.rei.forge.REIPluginCommon;
 import net.minecraft.client.renderer.Rect2i;
-import tfar.craftingstation.CraftingStationMenu;
+import tfar.craftingstation.menu.CraftingStationMenu;
 import tfar.craftingstation.client.CraftingStationScreen;
 import tfar.craftingstation.init.ModBlocks;
 

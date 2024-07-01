@@ -1,8 +1,7 @@
 package tfar.craftingstation;
 
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.inventory.TransientCraftingContainer;
-import tfar.craftingstation.util.CraftingStationItemHandler;
-import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.core.NonNullList;
@@ -10,13 +9,12 @@ import net.minecraft.core.NonNullList;
 import javax.annotation.Nonnull;
 import java.util.stream.IntStream;
 
-/** pretends to be an InventoryCrafting while actually just wrapping an IItemHandler */
-public class CraftingInventoryPersistant extends TransientCraftingContainer {
+public class PersistantCraftingContainer extends TransientCraftingContainer {
 
   private boolean doNotCallUpdates;
-  protected final CraftingStationItemHandler inv;
+  protected final SimpleContainer inv;
 
-  public CraftingInventoryPersistant(AbstractContainerMenu eventHandler, CraftingStationItemHandler itemHandler) {
+  public PersistantCraftingContainer(AbstractContainerMenu eventHandler, SimpleContainer itemHandler) {
     super(eventHandler, 3, 3);
     this.inv = itemHandler;
     doNotCallUpdates = false;
@@ -29,7 +27,7 @@ public class CraftingInventoryPersistant extends TransientCraftingContainer {
   @Override
   public ItemStack getItem(int slot) {
     validate(slot);
-    return inv.getStackInSlot(slot);
+    return inv.getItem(slot);
   }
 
   public void validate(int slot){
@@ -49,7 +47,7 @@ public class CraftingInventoryPersistant extends TransientCraftingContainer {
   @Override
   public ItemStack removeItem(int slot, int count) {
     validate(slot);
-    ItemStack stack = inv.extractItem(slot,count,false);
+    ItemStack stack = inv.removeItem(slot,count);
     if (!stack.isEmpty())
       onCraftMatrixChanged();
     return stack;
@@ -61,7 +59,7 @@ public class CraftingInventoryPersistant extends TransientCraftingContainer {
   @Override
   public void setItem(int slot,@Nonnull ItemStack stack) {
     validate(slot);
-    inv.setStackInSlot(slot, stack);
+    inv.setItem(slot, stack);
     onCraftMatrixChanged();
   }
 
@@ -80,12 +78,12 @@ public class CraftingInventoryPersistant extends TransientCraftingContainer {
   }
 
   public NonNullList<ItemStack> getStackList(){
-    return inv.getContents();
+    return inv.items;
   }
 
   @Override
   public boolean isEmpty() {
-    return IntStream.range(0, inv.getSlots()).allMatch(i -> inv.getStackInSlot(i).isEmpty());
+    return inv.isEmpty();
   }
 
   @Override

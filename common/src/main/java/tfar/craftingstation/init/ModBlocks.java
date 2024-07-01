@@ -2,8 +2,8 @@ package tfar.craftingstation.init;
 
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import tfar.craftingstation.CraftingStationBlock;
-import tfar.craftingstation.CraftingStationSlabBlock;
+import tfar.craftingstation.block.CraftingStationBlock;
+import tfar.craftingstation.block.CraftingStationSlabBlock;
 
 public class ModBlocks {
     static Block.Properties wood = Block.Properties.copy(Blocks.CRAFTING_TABLE);

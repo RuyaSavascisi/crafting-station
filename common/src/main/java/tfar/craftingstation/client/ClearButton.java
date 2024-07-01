@@ -23,7 +23,7 @@ public class ClearButton extends Button {
     RenderSystem.enableDepthTest();
     guiGraphics.blitNineSliced(WIDGETS_LOCATION, this.getX(), this.getY(), this.getWidth(), this.getHeight(), 20, 4, 200, 20, 0, this.getTextureY());
     guiGraphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
-    int i = getFGColor();
+    int i = 0xff0000;//getFGColor();
     this.renderString(guiGraphics, minecraft.font, i | Mth.ceil(this.alpha * 255.0F) << 24);
   }
 

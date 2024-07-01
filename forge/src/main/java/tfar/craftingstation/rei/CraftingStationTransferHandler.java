@@ -6,7 +6,7 @@ import me.shedaniel.rei.api.common.transfer.info.stack.SlotAccessor;
 import me.shedaniel.rei.api.common.transfer.info.stack.VanillaSlotAccessor;
 import me.shedaniel.rei.plugin.common.displays.crafting.DefaultCraftingDisplay;
 import net.minecraft.client.player.LocalPlayer;
-import tfar.craftingstation.CraftingStationMenu;
+import tfar.craftingstation.menu.CraftingStationMenu;
 
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;

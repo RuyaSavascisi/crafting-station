@@ -1,17 +1,13 @@
-package tfar.craftingstation;
+package tfar.craftingstation.block;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.Containers;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.MenuProvider;
+import net.minecraft.world.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -25,11 +21,10 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.items.IItemHandler;
+import tfar.craftingstation.blockentity.CraftingStationBlockEntity;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.stream.IntStream;
 
 public class CraftingStationBlock extends Block implements SimpleWaterloggedBlock, EntityBlock {
 
@@ -90,13 +85,9 @@ public class CraftingStationBlock extends Block implements SimpleWaterloggedBloc
     super.neighborChanged(pState, pLevel, pPos, pBlock, pFromPos, pIsMoving);
   }
 
-  @Override
-  public void onNeighborChange(BlockState state, LevelReader level, BlockPos pos, BlockPos neighbor) {
-    super.onNeighborChange(state, level, pos, neighbor);
-  }
 
-  public static void dropItems(IItemHandler inv, Level world, BlockPos pos) {
-    IntStream.range(0, inv.getSlots()).mapToObj(inv::getStackInSlot).filter(s -> !s.isEmpty()).forEach(stack -> Containers.dropItemStack(world, pos.getX(), pos.getY(), pos.getZ(), stack));
+  public static void dropItems(SimpleContainer inv, Level world, BlockPos pos) {
+    Containers.dropContents(world,pos,inv);
   }
 
   @Override

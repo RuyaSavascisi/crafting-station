@@ -6,7 +6,6 @@ import net.minecraft.tags.BlockTags;
 import net.minecraftforge.common.data.BlockTagsProvider;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import tfar.craftingstation.CraftingStation;
-import tfar.craftingstation.CraftingStationForge;
 import tfar.craftingstation.init.ModBlocks;
 
 import javax.annotation.Nullable;

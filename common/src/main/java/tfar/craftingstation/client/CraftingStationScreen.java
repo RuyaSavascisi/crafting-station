@@ -4,13 +4,13 @@ import tfar.craftingstation.CraftingStation;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Tooltip;
-import tfar.craftingstation.CraftingStationMenu;
+import tfar.craftingstation.menu.CraftingStationMenu;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.fml.ModList;
+import tfar.craftingstation.platform.Services;
 
 public class CraftingStationScreen extends AbstractContainerScreen<CraftingStationMenu> {
   public static final ResourceLocation CRAFTING_TABLE_GUI_TEXTURES = new ResourceLocation("textures/gui/container/crafting_table.png");
@@ -46,7 +46,7 @@ public class CraftingStationScreen extends AbstractContainerScreen<CraftingStati
       //  addRenderableWidget(new TabButton(leftPos - 128 + 21 * i, topPos - 22, 22, 28, button -> changeContainer(((TabButton)button).index),i,menu.blocks.get(i),this));
       }
     }
-    if (!ModList.get().isLoaded("craftingtweaks")) {
+    if (!Services.PLATFORM.isModLoaded("craftingtweaks")) {
 
       Tooltip tooltipC =  Tooltip.create(Component.translatable("text.crafting_station.clear"));
 

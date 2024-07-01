@@ -4,9 +4,17 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.event.ForgeEventFactory;
+import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.network.NetworkDirection;
+import tfar.craftingstation.Configs;
 import tfar.craftingstation.client.CraftingStationScreen;
 import tfar.craftingstation.network.PacketHandlerForge;
 import tfar.craftingstation.network.S2CModPacket;
@@ -17,6 +25,8 @@ import net.minecraftforge.fml.loading.FMLLoader;
 import java.util.function.Function;
 
 public class ForgePlatformHelper implements IPlatformHelper {
+
+    final MLConfig config = new Configs();
 
     @Override
     public String getPlatformName() {
@@ -54,5 +64,25 @@ public class ForgePlatformHelper implements IPlatformHelper {
             Recipe<?> r = Minecraft.getInstance().level.getRecipeManager().byKey(rec).orElse(null);
             ((CraftingStationScreen) Minecraft.getInstance().screen).getMenu().updateLastRecipeFromServer((Recipe<CraftingContainer>) r);
         }
+    }
+
+    @Override
+    public void forgeHooks$setCraftingPlayer(Player player) {
+        ForgeHooks.setCraftingPlayer(player);
+    }
+
+    @Override
+    public void forgeEventFactory$firePlayerCraftingEvent(Player player, ItemStack stack, CraftingContainer craftingContainer) {
+        ForgeEventFactory.firePlayerCraftingEvent(player,stack,craftingContainer);
+    }
+
+    @Override
+    public boolean hasCapability(BlockEntity blockEntity) {
+        return blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER, null).filter(IItemHandlerModifiable.class::isInstance).isPresent();
+    }
+
+    @Override
+    public MLConfig getConfig() {
+        return config;
     }
 }

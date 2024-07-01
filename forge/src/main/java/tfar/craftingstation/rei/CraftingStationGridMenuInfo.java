@@ -4,7 +4,7 @@ import me.shedaniel.rei.api.common.display.SimpleGridMenuDisplay;
 import me.shedaniel.rei.api.common.transfer.info.MenuInfoContext;
 import me.shedaniel.rei.api.common.transfer.info.simple.SimpleGridMenuInfo;
 import me.shedaniel.rei.api.common.transfer.info.stack.SlotAccessor;
-import tfar.craftingstation.CraftingStationMenu;
+import tfar.craftingstation.menu.CraftingStationMenu;
 
 import java.util.stream.IntStream;
 

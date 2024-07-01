@@ -28,15 +28,14 @@ import tfar.craftingstation.datagen.ModDatagen;
 import tfar.craftingstation.init.ModBlockEntityTypes;
 import tfar.craftingstation.init.ModBlocks;
 import tfar.craftingstation.init.ModMenuTypes;
-import tfar.craftingstation.network.PacketHandlerForge;
+import tfar.craftingstation.menu.CraftingStationMenu;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(CraftingStation.MOD_ID)
 public class CraftingStationForge {
     // Directly reference a log4j logger.
 
-    public static final TagKey<BlockEntityType<?>> blacklisted
-            = TagKey.create(Registries.BLOCK_ENTITY_TYPE, CraftingStation.id("blacklisted"));
+
 
     public static final Logger LOGGER = LogManager.getLogger();
 

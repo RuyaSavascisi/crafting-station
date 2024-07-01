@@ -1,10 +1,22 @@
 package tfar.craftingstation;
 
 import net.minecraftforge.common.ForgeConfigSpec;
+import tfar.craftingstation.platform.MLConfig;
+import tfar.craftingstation.platform.Services;
 
-public class Configs {
+public class Configs implements MLConfig {
 
-	public static class Client {
+    @Override
+    public boolean showItemsInTable() {
+        return Client.showItemsInTable.get();
+    }
+
+    @Override
+    public boolean sideContainers() {
+        return Server.sideInventories.get();
+    }
+
+    public static class Client {
 
       public static ForgeConfigSpec.BooleanValue showItemsInTable;
 

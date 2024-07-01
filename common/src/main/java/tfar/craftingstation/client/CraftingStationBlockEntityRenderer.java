@@ -2,8 +2,7 @@ package tfar.craftingstation.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.world.item.ItemDisplayContext;
-import tfar.craftingstation.Configs;
-import tfar.craftingstation.CraftingStationBlockEntity;
+import tfar.craftingstation.blockentity.CraftingStationBlockEntity;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.world.level.block.state.BlockState;
@@ -11,11 +10,11 @@ import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.properties.SlabType;
+import tfar.craftingstation.platform.Services;
 
 public class CraftingStationBlockEntityRenderer implements BlockEntityRenderer<CraftingStationBlockEntity> {
 
@@ -26,7 +25,7 @@ public class CraftingStationBlockEntityRenderer implements BlockEntityRenderer<C
   @Override
   public void render(CraftingStationBlockEntity blockEntity, float var2, PoseStack matrixStack, MultiBufferSource iRenderTypeBuffer, int light, int var6) {
 
-    if (!Configs.Client.showItemsInTable.get() || blockEntity.input.isEmpty())return;
+    if (!Services.PLATFORM.getConfig().showItemsInTable() || blockEntity.input.isEmpty())return;
 
     BlockState state = blockEntity.getBlockState();
 
@@ -38,7 +37,7 @@ public class CraftingStationBlockEntityRenderer implements BlockEntityRenderer<C
     matrixStack.translate(0,.0625 + height, 0);
     for (int i = 0; i < 3; i++) {
       for (int j = 0; j < 3; j++) {
-        ItemStack item = blockEntity.input.getStackInSlot(j + 3 * i);
+        ItemStack item = blockEntity.input.getItem(j + 3 * i);
         if (item.isEmpty()) continue;
 
         //pushmatrix

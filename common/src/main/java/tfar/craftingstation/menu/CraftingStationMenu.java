@@ -1,12 +1,16 @@
-package tfar.craftingstation;
+package tfar.craftingstation.menu;
 
+import net.minecraft.world.MenuProvider;
 import net.minecraft.world.inventory.*;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import tfar.craftingstation.CommonTagUtil;
+import tfar.craftingstation.CraftingStation;
+import tfar.craftingstation.ModIntegration;
+import tfar.craftingstation.PersistantCraftingContainer;
+import tfar.craftingstation.blockentity.CraftingStationBlockEntity;
 import tfar.craftingstation.init.ModMenuTypes;
-import tfar.craftingstation.network.PacketHandlerForge;
+import tfar.craftingstation.network.S2CCraftingStationMenuPacket;
 import tfar.craftingstation.network.S2CLastRecipePacket;
-import tfar.craftingstation.slot.BigSlot;
-import tfar.craftingstation.slot.SlotFastCraft;
+import tfar.craftingstation.platform.Services;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
@@ -14,21 +18,15 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
-import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.SlotItemHandler;
-import net.minecraftforge.network.NetworkDirection;
-import net.minecraftforge.registries.ForgeRegistries;
+import tfar.craftingstation.slot.SlotFastCraft;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -38,15 +36,15 @@ public class CraftingStationMenu extends AbstractContainerMenu {
 
     public static final int MAX_SLOTS = 54;
 
-    public final CraftingInventoryPersistant craftMatrix;
+    public final PersistantCraftingContainer craftMatrix;
     public final ResultContainer craftResult = new ResultContainer();
     public final Level world;
     public final CraftingStationBlockEntity tileEntity;
 
-    public final List<ItemStack> blocks = new ArrayList<>();
+    public final Map<Direction,ItemStack> blocks = new EnumMap<>(Direction.class);
     Map<Direction,BlockEntity> blockEntityMap = new EnumMap<>(Direction.class);
 
-    public final List<Component> containerNames = new ArrayList<>();
+    public final Map<Direction,Component> containerNames = new EnumMap<>(Direction.class);
     private final Player player;
     private final ContainerLevelAccess access;
     private final ContainerData data;
@@ -68,12 +66,12 @@ public class CraftingStationMenu extends AbstractContainerMenu {
         this.data = data;
         this.world = player.level();
         this.tileEntity = (CraftingStationBlockEntity) access.evaluate(ModIntegration::getTileEntityAtPos,null);
-        this.craftMatrix = new CraftingInventoryPersistant(this, tileEntity.input);
+        this.craftMatrix = new PersistantCraftingContainer(this, tileEntity.input);
         this.hasSideContainers = false;
 
         addOwnSlots();
 
-        if (Configs.Server.sideInventories.get()) {
+        if (true) {//todo config
             searchSideInventories();
         }
 
@@ -97,16 +95,17 @@ public class CraftingStationMenu extends AbstractContainerMenu {
                 BlockEntity te = world.getBlockEntity(neighbor);
                 if (te != null && !(te instanceof CraftingStationBlockEntity)) {
                     // if blacklisted, skip checks entirely
-                    if (ForgeRegistries.BLOCK_ENTITY_TYPES.tags().getTag(CraftingStationForge.blacklisted).contains(te.getType()))
+                    if (CommonTagUtil.isIn(CraftingStation.blacklisted,te.getType()))
                         continue;
                     if (te instanceof Container container && !container.stillValid(player)) {
                         continue;
                     }
 
                     // try internal access first
-                    if (te.getCapability(ForgeCapabilities.ITEM_HANDLER, null).filter(IItemHandlerModifiable.class::isInstance).isPresent()) {
+                    if (Services.PLATFORM.hasCapability(te)) {
                         blockEntityMap.put(dir, te);
-                        blocks.add(new ItemStack(world.getBlockState(neighbor).getBlock()));
+                        blocks.put(dir,new ItemStack(world.getBlockState(neighbor).getBlock()));
+                        containerNames.put(dir,te instanceof MenuProvider menuProvider? menuProvider.getDisplayName() : te.getBlockState().getBlock().getName());
                     }
                     // try sided access else
                     //      if(te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, dir.getOpposite())) {
@@ -118,13 +117,20 @@ public class CraftingStationMenu extends AbstractContainerMenu {
                     //   }
                 }
             }
+
+            if (!blockEntityMap.isEmpty()) {
+                Services.PLATFORM.sendToClient(new S2CCraftingStationMenuPacket(this),(ServerPlayer) player);
+            }
+
+
+
         });
     }
 
 
     private void addOwnSlots() {
         // crafting result
-        this.addSlot(new SlotFastCraft(this, this.craftMatrix, craftResult, 0, 124, 35, player));
+        this.addSlot(new SlotFastCraft(player, this.craftMatrix, craftResult, 0, 124, 35));
 
         // crafting grid
         for (int y = 0; y < 3; y++) {
@@ -132,26 +138,6 @@ public class CraftingStationMenu extends AbstractContainerMenu {
                 addSlot(new Slot(craftMatrix, x + 3 * y, 30 + 18 * x, 17 + 18 * y));
             }
         }
-    }
-
-    private void addSideContainerSlots(List<BlockEntity> tes, Direction dir, int xPos, int yPos) {
-        for (int i = 0; i < tes.size(); i++) {
-            BlockEntity te = tes.get(i);
-            containerNames.add(te instanceof MenuProvider menuProvider? menuProvider.getDisplayName() : te.getBlockState().getBlock().getName());
-            te.getCapability(ForgeCapabilities.ITEM_HANDLER).ifPresent(h -> {
-                int size = h.getSlots();
-                this.subContainerSize += size;
-                int offsetx = needsScroll() ? 0 : 8;
-                for (int y = 0; y < (int) Math.ceil(size / 6d); y++)
-                    for (int x = 0; x < 6; x++) {
-                        int index = 6 * y + x;
-                        if (index >= size) continue;
-                        SlotItemHandler wrapper = new BigSlot(h, index, 18 * x + xPos + offsetx, 18 * y + yPos);
-                        addSlot(wrapper);
-                    }
-            });
-        }
-        hasSideContainers = true;
     }
 
 
@@ -312,7 +298,7 @@ public class CraftingStationMenu extends AbstractContainerMenu {
         ItemStack itemstack = ItemStack.EMPTY;
 
         //If polymorph is installed we have to check earlier; the original caching doesn't detect the changed selection. Else, continue as previous.
-        if (ModList.get().isLoaded(ModIntegration.POLYMORPH)) {
+        if (Services.PLATFORM.isModLoaded(ModIntegration.POLYMORPH)) {
             lastRecipe = ModIntegration.findRecipe(this, inv, world, player);
         } else {
             // if the recipe is no longer valid, update it
@@ -364,7 +350,7 @@ public class CraftingStationMenu extends AbstractContainerMenu {
         players.forEach(otherPlayer -> {
             // safe cast since hasSameContainerOpen does class checks
             ((CraftingStationMenu) otherPlayer.containerMenu).lastRecipe = lastRecipe;
-            PacketHandlerForge.INSTANCE.sendTo(new S2CLastRecipePacket(lastRecipe), otherPlayer.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+            Services.PLATFORM.sendToClient(new S2CLastRecipePacket(lastRecipe), otherPlayer);
         });
     }
 

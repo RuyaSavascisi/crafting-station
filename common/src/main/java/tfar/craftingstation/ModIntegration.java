@@ -11,7 +11,8 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.fml.ModList;
+import tfar.craftingstation.menu.CraftingStationMenu;
+import tfar.craftingstation.platform.Services;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -25,7 +26,7 @@ public class ModIntegration {
 
     static {
         Method doubleSlabsGetTileEntity1 = null;
-        if (ModList.get().isLoaded("doubleslabs")) {
+        if (Services.PLATFORM.isModLoaded("doubleslabs")) {
             try {
                 Class<?> doubleSlabsFlags = Class.forName("cjminecraft.doubleslabs.api.Flags");
                 doubleSlabsGetTileEntity1 = doubleSlabsFlags.getDeclaredMethod("getTileEntityAtPos", BlockPos.class, BlockGetter.class);
@@ -37,7 +38,7 @@ public class ModIntegration {
 
         Method getPlayerRecipe = null;
 
-        if (ModList.get().isLoaded(POLYMORPH)) {
+        if (Services.PLATFORM.isModLoaded(POLYMORPH)) {
             try {
                 Class<?> recipeSelection = Class.forName("com.illusivesoulworks.polymorph.common.crafting.RecipeSelection");
                 getPlayerRecipe= recipeSelection.getDeclaredMethod("getPlayerRecipe", AbstractContainerMenu.class, RecipeType.class, Container.class, Level.class, Player.class);

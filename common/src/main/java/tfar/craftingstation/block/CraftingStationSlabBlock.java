@@ -1,4 +1,4 @@
-package tfar.craftingstation;
+package tfar.craftingstation.block;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -14,7 +14,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.network.NetworkHooks;
+import tfar.craftingstation.blockentity.CraftingStationBlockEntity;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -33,7 +33,7 @@ public class CraftingStationSlabBlock extends SlabBlock implements EntityBlock {
     if (!world.isClientSide) {
       MenuProvider iNamedContainerProvider = getMenuProvider(state,world,pos);
       if (iNamedContainerProvider != null) {
-        NetworkHooks.openScreen((ServerPlayer) player, iNamedContainerProvider, pos);
+        player.openMenu(iNamedContainerProvider);
       }
     }
     return InteractionResult.SUCCESS;

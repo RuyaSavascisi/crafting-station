@@ -1,4 +1,4 @@
-package com.example.examplemod.platform;
+package tfar.craftingstation.platform;
 
 import tfar.craftingstation.platform.services.IPlatformHelper;
 import net.fabricmc.loader.api.FabricLoader;

@@ -3,7 +3,12 @@ package tfar.craftingstation.platform.services;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import tfar.craftingstation.network.S2CModPacket;
+import tfar.craftingstation.platform.MLConfig;
 
 import java.util.function.Function;
 
@@ -45,5 +50,13 @@ public interface IPlatformHelper {
 
     void sendToClient(S2CModPacket msg, ServerPlayer player);
     void updateLastRecipeTemp(ResourceLocation rec);
+
+    void forgeHooks$setCraftingPlayer(Player player);
+
+    void forgeEventFactory$firePlayerCraftingEvent(Player player, ItemStack stack, CraftingContainer craftingContainer);
+
+    boolean hasCapability(BlockEntity blockEntity);
+
+    MLConfig getConfig();
 
 }

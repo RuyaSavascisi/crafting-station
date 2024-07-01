@@ -15,8 +15,8 @@ public class S2CLastRecipePacket implements S2CModPacket{
   public S2CLastRecipePacket() {
   }
 
-  public S2CLastRecipePacket(Recipe<CraftingContainer> toSend) {
-    rec = toSend == null ? NULL : toSend.getId();
+  public S2CLastRecipePacket(Recipe<CraftingContainer> toSend){
+    this(toSend == null ? NULL : toSend.getId());
   }
 
   public S2CLastRecipePacket(ResourceLocation toSend) {
