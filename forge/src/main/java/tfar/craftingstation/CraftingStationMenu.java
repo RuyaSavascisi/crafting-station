@@ -21,7 +21,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.fml.ModList;
@@ -33,27 +32,12 @@ import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class CraftingStationMenu extends AbstractContainerMenu {
-    private static final Method GET_TILE_ENTITY_METHOD;
 
-    static {
-        Method doubleSlabsGetTileEntity1 = null;
-        if (ModList.get().isLoaded("doubleslabs")) {
-            try {
-                Class<?> doubleSlabsFlags = Class.forName("cjminecraft.doubleslabs.api.Flags");
-                doubleSlabsGetTileEntity1 = doubleSlabsFlags.getDeclaredMethod("getTileEntityAtPos", BlockPos.class, BlockGetter.class);
-            } catch (ClassNotFoundException | NoSuchMethodException e) {
-                e.printStackTrace();
-            }
-        }
-        GET_TILE_ENTITY_METHOD = doubleSlabsGetTileEntity1;
-    }
 
     public final CraftingInventoryPersistant craftMatrix;
     public final ResultContainer craftResult = new ResultContainer();
@@ -71,15 +55,6 @@ public class CraftingStationMenu extends AbstractContainerMenu {
     protected Recipe<CraftingContainer> lastLastRecipe;
 
     protected DataSlot slot;
-
-    private static BlockEntity getTileEntityAtPos(BlockPos pos, Level world) {
-        try {
-            return GET_TILE_ENTITY_METHOD != null ? (BlockEntity) GET_TILE_ENTITY_METHOD.invoke(null, pos, world) : world.getBlockEntity(pos);
-        } catch (IllegalAccessException | InvocationTargetException ignored) {
-            return world.getBlockEntity(pos);
-        }
-    }
-
     public CraftingStationMenu(int id, Inventory inv, BlockPos pos) {
         this(id, inv, pos,new SimpleContainerData(1));
     }
@@ -90,7 +65,7 @@ public class CraftingStationMenu extends AbstractContainerMenu {
         this.player = inv.player;
         this.data = data;
         this.world = player.level();
-        this.tileEntity = (CraftingStationBlockEntity) getTileEntityAtPos(pos, world);
+        this.tileEntity = (CraftingStationBlockEntity) ModIntegration.getTileEntityAtPos(pos, world);
 
         this.data = data;
         this.craftMatrix = new CraftingInventoryPersistant(this, tileEntity.input);
@@ -156,17 +131,6 @@ public class CraftingStationMenu extends AbstractContainerMenu {
         }
     }
 
-    public Recipe<CraftingContainer> findRecipe(CraftingContainer inv, Level world, Player player) {
-
-        if (ModList.get().isLoaded("polymorph")) {
-            return RecipeSelection.getPlayerRecipe(this, RecipeType.CRAFTING, inv, world, player).stream().findFirst().orElse(null);
-        }
-        return world.getRecipeManager().getRecipeFor(RecipeType.CRAFTING,inv,world).stream().findFirst().orElse(null);
-    }
-
-    //                CraftingStationForge.LOGGER.error("Bad recipe found: " + recipe.getId().toString());
-    //                CraftingStationForge.LOGGER.error(e.getMessage());
-    //                player.sendMessage(new TranslatableComponent("text.crafting_station.error", recipe.getId().toString()).withStyle(ChatFormatting.DARK_RED), Util.NIL_UUID);
 
     private void addOwnSlots() {
         // crafting result
@@ -364,18 +328,18 @@ public class CraftingStationMenu extends AbstractContainerMenu {
         ItemStack itemstack = ItemStack.EMPTY;
 
         //If polymorph is installed we have to check earlier; the original caching doesn't detect the changed selection. Else, continue as previous.
-        if (ModList.get().isLoaded("polymorph")) {
-            lastRecipe = findRecipe( inv, world, player);
+        if (ModList.get().isLoaded(ModIntegration.POLYMORPH)) {
+            lastRecipe = ModIntegration.findRecipe(this, inv, world, player);
         } else {
             // if the recipe is no longer valid, update it
             if (lastRecipe == null || !lastRecipe.matches(inv, world)) {
-                lastRecipe = findRecipe( inv, world, player);
+                lastRecipe = ModIntegration.findRecipe(this, inv, world, player);
             }
         }
 
         // if the recipe is no longer valid, update it
         if (lastRecipe == null || !lastRecipe.matches(inv, world)) {
-            lastRecipe = findRecipe(inv, world, player);
+            lastRecipe = ModIntegration.findRecipe(this, inv, world, player);
         }
 
         // if we have a recipe, fetch its result
