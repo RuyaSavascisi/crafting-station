@@ -40,11 +40,11 @@ public class CraftingStationScreen extends AbstractContainerScreen<CraftingStati
   protected void init() {
     super.init();
     if (this.menu.hasSideContainers) {
-      for (int i = 0; i < menu.containerStarts.size(); i++) {
+      for (int i = 0; i < 0; i++) {
 
         Tooltip tab = null;//Tooltip.create((TabButton)button).stack, x, y);
 
-        addRenderableWidget(new TabButton(leftPos - 128 + 21 * i, topPos - 22, 22, 28, button -> changeContainer(((TabButton)button).index),i,menu.blocks.get(i),this));
+      //  addRenderableWidget(new TabButton(leftPos - 128 + 21 * i, topPos - 22, 22, 28, button -> changeContainer(((TabButton)button).index),i,menu.blocks.get(i),this));
       }
     }
     if (!ModList.get().isLoaded("craftingtweaks")) {
@@ -110,10 +110,10 @@ public class CraftingStationScreen extends AbstractContainerScreen<CraftingStati
       stack.blit(SECONDARY_GUI_TEXTURE,i - 130, j, 0, 0, this.imageWidth, this.imageHeight + 18);
 
       bind(SCROLLBAR_BACKGROUND_AND_TAB);
-      int totalSlots = this.menu.getActiveSubContainerSlotCount();
+      int totalSlots = 0;
       int slotsToDraw = 54;
       if (totalSlots < slotsToDraw) slotsToDraw = totalSlots;
-      else if (hasScrollbar() && topRow == this.menu.getRows() - 9 && totalSlots % 6 != 0)
+      else if (hasScrollbar() && topRow == 0 - 9 && totalSlots % 6 != 0)
         slotsToDraw = 54 - 6 + totalSlots % 6;
 
       int offset = hasScrollbar() ? -126 : -118;
@@ -173,7 +173,7 @@ public class CraftingStationScreen extends AbstractContainerScreen<CraftingStati
   }
 
   private boolean hasScrollbar() {
-    return menu.getRows() > 9;
+    return menu.needsScroll();
   }
 
   @Override
@@ -187,15 +187,9 @@ public class CraftingStationScreen extends AbstractContainerScreen<CraftingStati
   }
 
   private void scrollTo(double scroll) {
-    setTopRow((int) Math.round((menu.getRows() - 9) * scroll), true);
   }
 
   private void setTopRow(int offset, boolean smooth) {
-    topRow = offset;
-    if (topRow < 0) topRow = 0;
-    else if (topRow > menu.getRows() - 9) topRow = menu.getRows() - 9;
-    menu.updateSlotPositions(topRow);
-    if (!smooth) this.currentScroll = (double) topRow / (this.menu.getRows() - 9);
   }
 }
 

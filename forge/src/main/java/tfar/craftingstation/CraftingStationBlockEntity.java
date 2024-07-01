@@ -1,6 +1,9 @@
 package tfar.craftingstation;
 
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.Tag;
 import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.inventory.ContainerLevelAccess;
 import tfar.craftingstation.init.ModBlockEntityTypes;
 import tfar.craftingstation.util.CraftingStationItemHandler;
 import net.minecraft.core.BlockPos;
@@ -19,73 +22,82 @@ import javax.annotation.Nullable;
 
 public class CraftingStationBlockEntity extends BlockEntity implements MenuProvider {
 
-  public CraftingStationItemHandler input;
+    public CraftingStationItemHandler input;
 
- private int currentContainer = 0;
+    private Component customName;
+    private Direction currentContainer = Direction.NORTH;
 
- ContainerData data = new ContainerData() {
-   @Override
-   public int get(int pIndex) {
-     return currentContainer;
-   }
+    ContainerData data = new ContainerData() {
+        @Override
+        public int get(int pIndex) {
+            return currentContainer.ordinal();
+        }
 
-   @Override
-   public void set(int pIndex, int pValue) {
-     currentContainer = pValue;
-   }
+        @Override
+        public void set(int pIndex, int pValue) {
+            currentContainer = Direction.values()[pValue];
+        }
 
-   @Override
-   public int getCount() {
-     return 1;
-   }
- };
+        @Override
+        public int getCount() {
+            return 1;
+        }
+    };
 
-  public CraftingStationBlockEntity(BlockPos pPos, BlockState pState) {
-    super(ModBlockEntityTypes.crafting_station,pPos,pState);
-    this.input = new CraftingStationItemHandler(9,this);
-  }
+    public CraftingStationBlockEntity(BlockPos pPos, BlockState pState) {
+        super(ModBlockEntityTypes.crafting_station, pPos, pState);
+        this.input = new CraftingStationItemHandler(9, this);
+    }
 
-  @Nonnull
-  @Override
-  public void saveAdditional(CompoundTag tag) {
-    CompoundTag compound = this.input.serializeNBT();
-    tag.put("inv", compound);
-    // if (this.customName != null) {
-    //   tag.putString("CustomName", ITextComponent.Serializer.toJson(this.customName));
-    //  }
-  }
+    @Override
+    public void saveAdditional(CompoundTag tag) {
+        CompoundTag compound = this.input.serializeNBT();
+        tag.put("inv", compound);
+        if (this.customName != null) {
+            tag.putString("CustomName", Component.Serializer.toJson(this.customName));
+        }
+    }
 
-  @Override
-  public void load(CompoundTag tag) {
-    CompoundTag invTag = tag.getCompound("inv");
-    input.deserializeNBT(invTag);
-    //  if (tag.contains("CustomName", 8)) {
-    //    this.customName = ITextComponent.Serializer.fromJson(tag.getString("CustomName"));
-    //   }
-    super.load(tag);
-  }
+    @Override
+    public void load(CompoundTag tag) {
+        CompoundTag invTag = tag.getCompound("inv");
+        input.deserializeNBT(invTag);
+        if (tag.contains("CustomName", Tag.TAG_STRING)) {
+            this.customName = Component.Serializer.fromJson(tag.getString("CustomName"));
+        }
+        super.load(tag);
+    }
 
-  @Nonnull
-  @Override
-  public Component getDisplayName() {
-    return Component.translatable("title.crafting_station");
-  }
+    @Nonnull
+    @Override
+    public Component getDisplayName() {
+        return getCustomName() != null ? getCustomName() : Component.translatable("title.crafting_station");
+    }
 
-  @Nullable
-  @Override
-  public AbstractContainerMenu createMenu(int id, Inventory playerInventory, Player player) {
-    return new CraftingStationMenu(id, playerInventory, worldPosition,data);
-  }
+    @Nullable
+    @Override
+    public AbstractContainerMenu createMenu(int id, Inventory playerInventory, Player player) {
+        return new CraftingStationMenu(id, playerInventory, ContainerLevelAccess.create(level,worldPosition), data);
+    }
 
-  @Nonnull
-  @Override
-  public CompoundTag getUpdateTag() {
-    return saveWithoutMetadata();    // okay to send entire inventory on chunk load
-  }
+    public void setCustomName(@Nullable Component pName) {
+        this.customName = pName;
+    }
 
-  @Override
-  public ClientboundBlockEntityDataPacket getUpdatePacket() {
-    return ClientboundBlockEntityDataPacket.create(this);
-  }
+    @Nullable
+    public Component getCustomName() {
+        return this.customName;
+    }
+
+    @Nonnull
+    @Override
+    public CompoundTag getUpdateTag() {
+        return saveWithoutMetadata();    // okay to send entire inventory on chunk load
+    }
+
+    @Override
+    public ClientboundBlockEntityDataPacket getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
+    }
 }
 

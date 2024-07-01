@@ -1,6 +1,5 @@
 package tfar.craftingstation;
 
-import com.illusivesoulworks.polymorph.common.crafting.RecipeSelection;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
@@ -49,7 +48,7 @@ public class ModIntegration {
         GET_PLAYER_RECIPE = getPlayerRecipe;
     }
 
-    public static BlockEntity getTileEntityAtPos(BlockPos pos, Level world) {
+    public static BlockEntity getTileEntityAtPos(Level world, BlockPos pos) {
         try {
             return GET_TILE_ENTITY_METHOD != null ? (BlockEntity) GET_TILE_ENTITY_METHOD.invoke(null, pos, world) : world.getBlockEntity(pos);
         } catch (IllegalAccessException | InvocationTargetException ignored) {

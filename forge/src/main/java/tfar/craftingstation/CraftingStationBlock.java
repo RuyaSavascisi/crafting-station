@@ -2,7 +2,6 @@ package tfar.craftingstation;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -12,6 +11,7 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -26,7 +26,6 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.network.NetworkHooks;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -62,7 +61,7 @@ public class CraftingStationBlock extends Block implements SimpleWaterloggedBloc
     if (!world.isClientSide) {
       BlockEntity tileEntity = world.getBlockEntity(pos);
       if (tileEntity instanceof MenuProvider) {
-        NetworkHooks.openScreen((ServerPlayer) player, (MenuProvider) tileEntity, tileEntity.getBlockPos());
+        player.openMenu( (MenuProvider) tileEntity);
       }
     }
     return InteractionResult.SUCCESS;
@@ -84,6 +83,16 @@ public class CraftingStationBlock extends Block implements SimpleWaterloggedBloc
       }
       super.onRemove(state, worldIn, pos, newState, isMoving);
     }
+  }
+
+  @Override
+  public void neighborChanged(BlockState pState, Level pLevel, BlockPos pPos, Block pBlock, BlockPos pFromPos, boolean pIsMoving) {
+    super.neighborChanged(pState, pLevel, pPos, pBlock, pFromPos, pIsMoving);
+  }
+
+  @Override
+  public void onNeighborChange(BlockState state, LevelReader level, BlockPos pos, BlockPos neighbor) {
+    super.onNeighborChange(state, level, pos, neighbor);
   }
 
   public static void dropItems(IItemHandler inv, Level world, BlockPos pos) {
@@ -122,7 +131,6 @@ public class CraftingStationBlock extends Block implements SimpleWaterloggedBloc
     return this.defaultBlockState().setValue(FACING, ctx.getHorizontalDirection()).setValue(WATERLOGGED, water);
   }
 
-  @org.jetbrains.annotations.Nullable
   @Override
   public BlockEntity newBlockEntity(BlockPos pPos, BlockState pState) {
     return new CraftingStationBlockEntity(pPos,pState);
