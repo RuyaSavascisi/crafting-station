@@ -10,6 +10,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.network.chat.Component;
+import tfar.craftingstation.network.C2SScreenUpdatePacket;
 import tfar.craftingstation.platform.Services;
 
 public class CraftingStationScreen extends AbstractContainerScreen<CraftingStationMenu> {
@@ -33,12 +34,13 @@ public class CraftingStationScreen extends AbstractContainerScreen<CraftingStati
   public CraftingStationScreen(CraftingStationMenu p_i51094_1_, Inventory p_i51094_2_, Component p_i51094_3_) {
     super(p_i51094_1_, p_i51094_2_, p_i51094_3_);
     topRow = 0;
+    Services.PLATFORM.sendToServer(new C2SScreenUpdatePacket());
   }
 
   @Override
   protected void init() {
     super.init();
-    if (this.menu.hasSideContainers) {
+    if (this.menu.hasSideContainers()) {
       for (int i = 0; i < 0; i++) {
 
         Tooltip tab = null;//Tooltip.create((TabButton)button).stack, x, y);
@@ -63,7 +65,7 @@ public class CraftingStationScreen extends AbstractContainerScreen<CraftingStati
   @Override
   protected boolean hasClickedOutside(double mouseX, double mouseY, int guiLeftIn, int guiTopIn, int mouseButton) {
     boolean b = super.hasClickedOutside(mouseX, mouseY, guiLeftIn, guiTopIn, mouseButton) &&
-            (!menu.hasSideContainers || !isHovering(-126, -16, 126, 32 + imageHeight, mouseX, mouseY));
+            (!menu.hasSideContainers() || !isHovering(-126, -16, 126, 32 + imageHeight, mouseX, mouseY));
     return b;
   }
 
@@ -76,7 +78,7 @@ public class CraftingStationScreen extends AbstractContainerScreen<CraftingStati
 
   protected void renderLabels(GuiGraphics stack,int p_146979_1_, int p_146979_2_) {
     super.renderLabels(stack, p_146979_1_, p_146979_2_);
-    if (menu.hasSideContainers){
+    if (menu.hasSideContainers()){
       stack.drawString(font, getTruncatedString(),-122,6, 0x404040,false);
     }
   }
@@ -99,7 +101,7 @@ public class CraftingStationScreen extends AbstractContainerScreen<CraftingStati
     int i2 = i1 + 14;
 
     int j = (this.height - this.imageHeight) / 2;
-    if (this.menu.hasSideContainers) {
+    if (this.menu.hasSideContainers()) {
       //draw background
       //bind(SECONDARY_GUI_TEXTURE);
       stack.blit(SECONDARY_GUI_TEXTURE,i - 130, j, 0, 0, this.imageWidth, this.imageHeight + 18);

@@ -1,6 +1,7 @@
 package tfar.craftingstation.menu;
 
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.inventory.*;
 import tfar.craftingstation.CommonTagUtil;
 import tfar.craftingstation.CraftingStation;
@@ -8,7 +9,6 @@ import tfar.craftingstation.ModIntegration;
 import tfar.craftingstation.PersistantCraftingContainer;
 import tfar.craftingstation.blockentity.CraftingStationBlockEntity;
 import tfar.craftingstation.init.ModMenuTypes;
-import tfar.craftingstation.network.S2CCraftingStationMenuPacket;
 import tfar.craftingstation.network.S2CLastRecipePacket;
 import tfar.craftingstation.platform.Services;
 import net.minecraft.core.BlockPos;
@@ -41,7 +41,7 @@ public class CraftingStationMenu extends AbstractContainerMenu {
     public final Level world;
     public final CraftingStationBlockEntity tileEntity;
 
-    public final Map<Direction,ItemStack> blocks = new EnumMap<>(Direction.class);
+    public Map<Direction,ItemStack> blocks = new EnumMap<>(Direction.class);
     Map<Direction,BlockEntity> blockEntityMap = new EnumMap<>(Direction.class);
 
     public final Map<Direction,Component> containerNames = new EnumMap<>(Direction.class);
@@ -50,34 +50,41 @@ public class CraftingStationMenu extends AbstractContainerMenu {
     private final ContainerData data;
     public Recipe<CraftingContainer> lastRecipe;
     public int subContainerSize = 0;
-    public boolean hasSideContainers;
     protected Recipe<CraftingContainer> lastLastRecipe;
 
-    protected DataSlot slot;
     public CraftingStationMenu(int id, Inventory inv) {
-        this(id, inv, ContainerLevelAccess.NULL,new SimpleContainerData(1));
+        this(id, inv, ContainerLevelAccess.NULL,new SimpleContainerData(1),new SimpleContainer(9));
     }
 
 
-    public CraftingStationMenu(int id, Inventory inv,ContainerLevelAccess access, ContainerData data) {
+    public CraftingStationMenu(int id, Inventory inv, ContainerLevelAccess access, ContainerData data, SimpleContainer simpleContainer) {
         super(ModMenuTypes.crafting_station, id);
         this.player = inv.player;
         this.access = access;
         this.data = data;
         this.world = player.level();
         this.tileEntity = (CraftingStationBlockEntity) access.evaluate(ModIntegration::getTileEntityAtPos,null);
-        this.craftMatrix = new PersistantCraftingContainer(this, tileEntity.input);
-        this.hasSideContainers = false;
+        this.craftMatrix = new PersistantCraftingContainer(this, simpleContainer);
+
 
         addOwnSlots();
 
-        if (true) {//todo config
+        if (Services.PLATFORM.getConfig().sideContainers()) {
             searchSideInventories();
         }
 
+        addSideInventorySlots();
         addPlayerSlots(inv);
         slotsChanged(craftMatrix);
         addDataSlots(data);
+    }
+
+    protected void addSideInventorySlots() {
+
+    }
+
+    public boolean hasSideContainers() {
+        return !blocks.isEmpty();
     }
 
     //it goes crafting output slot | 0
@@ -117,13 +124,6 @@ public class CraftingStationMenu extends AbstractContainerMenu {
                     //   }
                 }
             }
-
-            if (!blockEntityMap.isEmpty()) {
-                Services.PLATFORM.sendToClient(new S2CCraftingStationMenuPacket(this),(ServerPlayer) player);
-            }
-
-
-
         });
     }
 
@@ -141,12 +141,12 @@ public class CraftingStationMenu extends AbstractContainerMenu {
     }
 
 
-    void setCurrentContainer(int container) {
-        data.set(0,container);
+    void setCurrentContainer(Direction container) {
+        data.set(0,container.ordinal());
     }
 
-     public int getCurrentContainer() {
-        return data.get(0);
+     public Direction getCurrentContainer() {
+        return Direction.values()[data.get(0)];
     }
 
     private void addPlayerSlots(Inventory playerInventory) {
@@ -187,7 +187,7 @@ public class CraftingStationMenu extends AbstractContainerMenu {
     @Override
     public ItemStack quickMoveStack(Player playerIn, int index) {
 
-        if (hasSideContainers) {
+        if (hasSideContainers()) {
 
             return handleTransferWithSides(playerIn, index);
         } else {
@@ -392,7 +392,7 @@ public class CraftingStationMenu extends AbstractContainerMenu {
 
     //return true if anything happened
     protected boolean moveToSideInventory(@Nonnull ItemStack itemstack) {
-        return hasSideContainers && this.mergeItemStackMove(itemstack, 10, 10 + subContainerSize);
+        return hasSideContainers() && this.mergeItemStackMove(itemstack, 10, 10 + subContainerSize);
     }
 
     protected boolean moveToPlayerInventory(@Nonnull ItemStack itemstack) {
@@ -542,5 +542,9 @@ public class CraftingStationMenu extends AbstractContainerMenu {
             }
         }
         return true;
+    }
+
+    public  void setClientData(Map<Direction,ItemStack> icons) {
+        this.blocks = icons;
     }
 }

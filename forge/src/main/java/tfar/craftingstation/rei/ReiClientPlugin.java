@@ -44,7 +44,7 @@ public class ReiClientPlugin implements REIClientPlugin {
   //@Override
   public List<Rect2i> getGuiExtraAreas(CraftingStationScreen containerScreen) {
     List<Rect2i> areas = new ArrayList<>();
-    if (containerScreen.getMenu().hasSideContainers){
+    if (containerScreen.getMenu().hasSideContainers()){
       int x = (containerScreen.width - 140) / 2 - 140;
       int y = (containerScreen.height - 180) / 2 - 16;
       areas.add(new Rect2i(x, y, 140, 196));    }

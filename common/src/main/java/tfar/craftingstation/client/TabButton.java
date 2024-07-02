@@ -29,7 +29,7 @@ public class TabButton extends Button{
       RenderSystem.enableBlend();
       RenderSystem.defaultBlendFunc();
       RenderSystem.enableDepthTest();
-      if (craftingStationScreen.getMenu().getCurrentContainer() == index) {
+      if (craftingStationScreen.getMenu().getCurrentContainer().ordinal() == index) {
         matrices.blit(TAB,getX(), getY(), 0, height, width, height,width,height * 2);
       } else {
         matrices.blit(TAB, getX(), getY(), 0, 0, width, height,width,height * 2);

@@ -16,6 +16,7 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.network.NetworkDirection;
 import tfar.craftingstation.Configs;
 import tfar.craftingstation.client.CraftingStationScreen;
+import tfar.craftingstation.network.C2SModPacket;
 import tfar.craftingstation.network.PacketHandlerForge;
 import tfar.craftingstation.network.S2CModPacket;
 import tfar.craftingstation.platform.services.IPlatformHelper;
@@ -51,11 +52,21 @@ public class ForgePlatformHelper implements IPlatformHelper {
         PacketHandlerForge.INSTANCE.sendTo(msg, player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
     }
 
+    @Override
+    public void sendToServer(C2SModPacket msg) {
+        PacketHandlerForge.INSTANCE.sendToServer(msg);
+    }
+
     int i;
 
     @Override
     public <MSG extends S2CModPacket> void registerClientPacket(Class<MSG> packetLocation, Function<FriendlyByteBuf, MSG> reader) {
         PacketHandlerForge.INSTANCE.registerMessage(i++, packetLocation, MSG::write, reader, PacketHandlerForge.wrapS2C());
+    }
+
+    @Override
+    public <MSG extends C2SModPacket> void registerServerPacket(Class<MSG>  packetLocation, Function<FriendlyByteBuf, MSG> reader) {
+        PacketHandlerForge.INSTANCE.registerMessage(i++, packetLocation, MSG::write, reader, PacketHandlerForge.wrapC2S());
     }
 
     @Override
