@@ -29,6 +29,7 @@ import tfar.craftingstation.network.S2CModPacket;
 import tfar.craftingstation.platform.services.IPlatformHelper;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.loading.FMLLoader;
+import tfar.craftingstation.util.Empty;
 import tfar.craftingstation.util.SideContainerForge;
 import tfar.craftingstation.util.SideContainerWrapper;
 
@@ -118,12 +119,12 @@ public class ForgePlatformHelper implements IPlatformHelper {
 
     @Override
     public SideContainerWrapper getWrapper(BlockEntity blockEntity) {
-        if (blockEntity == null) return null;
+        if (blockEntity == null) return Empty.EMPTY;
 
         IItemHandler handler = blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER).orElse(null);
         if (handler instanceof IItemHandlerModifiable iItemHandlerModifiable) {
             return new SideContainerForge(iItemHandlerModifiable);
         }
-        return null;
+        return Empty.EMPTY;
     }
 }

@@ -63,6 +63,7 @@ public class CraftingStationMenu extends AbstractContainerMenu {
         this.pos = pos;
         this.world = player.level();
         this.tileEntity = (CraftingStationBlockEntity) ModIntegration.getTileEntityAtPos(player.level(),pos);
+        setCurrentContainer(tileEntity.getCurrentContainer());
         this.craftMatrix = new PersistantCraftingContainer(this, simpleContainer);
 
 
@@ -131,7 +132,7 @@ public class CraftingStationMenu extends AbstractContainerMenu {
     }
 
     public Direction getSelectedContainer() {
-        return tileEntity.currentContainer;
+        return currentContainer;
     }
 
     //it goes crafting output slot | 0
@@ -529,9 +530,6 @@ public class CraftingStationMenu extends AbstractContainerMenu {
         return slot.container != craftResult && super.canTakeItemForPickAll(stack, slot);
     }
 
-    public void changeContainer(int newContainer) {
-    }
-
     public void updateLastRecipeFromServer(Recipe<CraftingContainer> recipe) {
         lastRecipe = recipe;
         // if no recipe, set to empty to prevent ghost outputs when another player grabs the result
@@ -542,6 +540,11 @@ public class CraftingStationMenu extends AbstractContainerMenu {
         return false;
     }
 
+    protected Direction currentContainer;
+
+    void setCurrentContainer(Direction currentContainer) {
+        this.currentContainer = currentContainer;
+    }
 
 
     public NonNullList<ItemStack> getRemainingItems() {
@@ -563,21 +566,22 @@ public class CraftingStationMenu extends AbstractContainerMenu {
                 case CLEAR -> {
                     for (int i = 1; i < 10; i++) quickMoveStack(player, i);
                 }
-                case TAB_0 -> {
-                }
-                case TAB_1 -> {
-                }
-                case TAB_2 -> {
-                }
-                case TAB_3 -> {
-                }
-                case TAB_4 -> {
-                }
-                case TAB_5 -> {
+                case TAB_0, TAB_1, TAB_2, TAB_3, TAB_4, TAB_5 -> {
+                    Direction direction = Direction.values()[id - 1];
+                    if (blockEntityMap.get(direction) != null)
+                        setCurrentContainer(direction);
                 }
             }
         }
         return true;
+    }
+
+    @Override
+    public void removed(Player $$0) {
+        super.removed($$0);
+        if (!$$0.level().isClientSide) {
+            tileEntity.setCurrentContainer(currentContainer);
+        }
     }
 
     public  void setClientData(Map<Direction,ItemStack> icons) {

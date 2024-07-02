@@ -25,7 +25,7 @@ public class CraftingStationBlockEntity extends BlockEntity implements MenuProvi
     public SimpleContainer input;
 
     private Component customName;
-    public Direction currentContainer = Direction.DOWN;
+    protected Direction currentContainer = Direction.DOWN;
 
     public CraftingStationBlockEntity(BlockPos pPos, BlockState pState) {
         super(ModBlockEntityTypes.crafting_station, pPos, pState);
@@ -41,6 +41,15 @@ public class CraftingStationBlockEntity extends BlockEntity implements MenuProvi
 
             }
         };
+    }
+
+    public void setCurrentContainer(Direction currentContainer) {
+        this.currentContainer = currentContainer;
+        setChanged();
+    }
+
+    public Direction getCurrentContainer() {
+        return currentContainer;
     }
 
     @Override
