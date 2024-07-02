@@ -4,6 +4,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.item.ItemStack;
 import tfar.craftingstation.init.ModBlockEntityTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -37,8 +38,23 @@ public class CraftingStationBlockEntity extends BlockEntity implements MenuProvi
             }
 
             @Override
-            public void clearContent() {
+            public void fromTag(ListTag pContainerNbt) {
+                items.clear();
+                for(int i = 0; i < pContainerNbt.size(); ++i) {
+                    ItemStack itemstack = ItemStack.of(pContainerNbt.getCompound(i));
+                    this.items.set(i, itemstack);
+                }
+            }
 
+            @Override
+            public ListTag createTag() {
+                ListTag $$0 = new ListTag();
+
+                for(int i = 0; i < this.getContainerSize(); ++i) {
+                    ItemStack $$2 = this.getItem(i);
+                        $$0.add($$2.save(new CompoundTag()));
+                }
+                return $$0;
             }
         };
     }
