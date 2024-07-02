@@ -14,6 +14,7 @@ import tfar.craftingstation.menu.CraftingStationMenu;
 import tfar.craftingstation.network.C2SModPacket;
 import tfar.craftingstation.network.S2CModPacket;
 import tfar.craftingstation.platform.MLConfig;
+import tfar.craftingstation.util.SideContainerWrapper;
 
 import java.util.function.Function;
 
@@ -70,5 +71,7 @@ public interface IPlatformHelper {
     void openMenu(ServerPlayer player, MenuProvider menuProvider, BlockPos pos);
 
     MenuType<CraftingStationMenu> customMenu();
+
+    SideContainerWrapper getWrapper(BlockEntity blockEntity);
 
 }

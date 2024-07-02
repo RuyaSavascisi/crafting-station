@@ -82,7 +82,7 @@ public class CraftingStationScreen extends AbstractContainerScreen<CraftingStati
     }
 
     String getTruncatedString() {
-        String string = menu.containerNames.getOrDefault(menu.getCurrentContainer(), Component.empty()).getString();
+        String string = menu.containerNames.getOrDefault(menu.getSelectedContainer(), Component.empty()).getString();
         if (string.length() > 23) {
             return string.substring(0, 23) + "...";
         }
@@ -105,10 +105,9 @@ public class CraftingStationScreen extends AbstractContainerScreen<CraftingStati
             stack.blit(SECONDARY_GUI_TEXTURE, i - 130, j, 0, 0, this.imageWidth, this.imageHeight + 18);
 
             bind(SCROLLBAR_BACKGROUND_AND_TAB);
-            int totalSlots = 0;
-            int slotsToDraw = 54;
-            if (totalSlots < slotsToDraw) slotsToDraw = totalSlots;
-            else if (hasScrollbar() && topRow == 0 - 9 && totalSlots % 6 != 0)
+            int totalSlots = menu.getCurrentHandler().$getSlotCount();
+            int slotsToDraw = Math.min(totalSlots,54);
+            if (hasScrollbar() && topRow == 0 - 9 && totalSlots % 6 != 0)
                 slotsToDraw = 54 - 6 + totalSlots % 6;
 
             int offset = hasScrollbar() ? -126 : -118;

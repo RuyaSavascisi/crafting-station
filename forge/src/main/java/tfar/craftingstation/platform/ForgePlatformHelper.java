@@ -16,6 +16,7 @@ import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.extensions.IForgeMenuType;
 import net.minecraftforge.event.ForgeEventFactory;
+import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkHooks;
@@ -28,6 +29,8 @@ import tfar.craftingstation.network.S2CModPacket;
 import tfar.craftingstation.platform.services.IPlatformHelper;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.loading.FMLLoader;
+import tfar.craftingstation.util.SideContainerForge;
+import tfar.craftingstation.util.SideContainerWrapper;
 
 import java.util.function.Function;
 
@@ -111,5 +114,16 @@ public class ForgePlatformHelper implements IPlatformHelper {
     @Override
     public void openMenu(ServerPlayer player, MenuProvider menuProvider, BlockPos pos) {
         NetworkHooks.openScreen(player, menuProvider, pos);
+    }
+
+    @Override
+    public SideContainerWrapper getWrapper(BlockEntity blockEntity) {
+        if (blockEntity == null) return null;
+
+        IItemHandler handler = blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER).orElse(null);
+        if (handler instanceof IItemHandlerModifiable iItemHandlerModifiable) {
+            return new SideContainerForge(iItemHandlerModifiable);
+        }
+        return null;
     }
 }

@@ -2,6 +2,7 @@ package tfar.craftingstation.block;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -22,6 +23,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import tfar.craftingstation.blockentity.CraftingStationBlockEntity;
+import tfar.craftingstation.platform.Services;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -56,7 +58,7 @@ public class CraftingStationBlock extends Block implements SimpleWaterloggedBloc
     if (!world.isClientSide) {
       BlockEntity tileEntity = world.getBlockEntity(pos);
       if (tileEntity instanceof MenuProvider) {
-        player.openMenu( (MenuProvider) tileEntity);
+        Services.PLATFORM.openMenu((ServerPlayer)player, (MenuProvider) tileEntity,pos);
       }
     }
     return InteractionResult.SUCCESS;

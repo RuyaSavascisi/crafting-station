@@ -15,6 +15,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.phys.BlockHitResult;
 import tfar.craftingstation.blockentity.CraftingStationBlockEntity;
+import tfar.craftingstation.platform.Services;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -33,7 +34,7 @@ public class CraftingStationSlabBlock extends SlabBlock implements EntityBlock {
     if (!world.isClientSide) {
       MenuProvider iNamedContainerProvider = getMenuProvider(state,world,pos);
       if (iNamedContainerProvider != null) {
-        player.openMenu(iNamedContainerProvider);
+        Services.PLATFORM.openMenu((ServerPlayer)player, iNamedContainerProvider,pos);
       }
     }
     return InteractionResult.SUCCESS;

@@ -4,8 +4,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.inventory.ContainerData;
-import net.minecraft.world.inventory.ContainerLevelAccess;
 import tfar.craftingstation.init.ModBlockEntityTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -27,24 +25,7 @@ public class CraftingStationBlockEntity extends BlockEntity implements MenuProvi
     public SimpleContainer input;
 
     private Component customName;
-    private Direction currentContainer = Direction.NORTH;
-
-    ContainerData data = new ContainerData() {
-        @Override
-        public int get(int pIndex) {
-            return currentContainer.ordinal();
-        }
-
-        @Override
-        public void set(int pIndex, int pValue) {
-            currentContainer = Direction.values()[pValue];
-        }
-
-        @Override
-        public int getCount() {
-            return 1;
-        }
-    };
+    public Direction currentContainer = Direction.DOWN;
 
     public CraftingStationBlockEntity(BlockPos pPos, BlockState pState) {
         super(ModBlockEntityTypes.crafting_station, pPos, pState);
@@ -53,6 +34,11 @@ public class CraftingStationBlockEntity extends BlockEntity implements MenuProvi
             public void setChanged() {
                 super.setChanged();
                 CraftingStationBlockEntity.this.setChanged();
+            }
+
+            @Override
+            public void clearContent() {
+
             }
         };
     }
@@ -64,6 +50,7 @@ public class CraftingStationBlockEntity extends BlockEntity implements MenuProvi
         if (this.customName != null) {
             tag.putString("CustomName", Component.Serializer.toJson(this.customName));
         }
+        tag.putInt("dir",currentContainer.ordinal());
     }
 
     @Override
@@ -73,6 +60,7 @@ public class CraftingStationBlockEntity extends BlockEntity implements MenuProvi
         if (tag.contains("CustomName", Tag.TAG_STRING)) {
             this.customName = Component.Serializer.fromJson(tag.getString("CustomName"));
         }
+        currentContainer = Direction.values()[tag.getInt("dir")];
         super.load(tag);
     }
 
@@ -85,7 +73,7 @@ public class CraftingStationBlockEntity extends BlockEntity implements MenuProvi
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(int id, Inventory playerInventory, Player player) {
-        return new CraftingStationMenu(id, playerInventory, data, input,worldPosition);
+        return new CraftingStationMenu(id, playerInventory, input,worldPosition);
     }
 
     public void setCustomName(@Nullable Component pName) {
@@ -95,6 +83,12 @@ public class CraftingStationBlockEntity extends BlockEntity implements MenuProvi
     @Nullable
     public Component getCustomName() {
         return this.customName;
+    }
+
+    @Override
+    public void setChanged() {
+        super.setChanged();
+        level.sendBlockUpdated(worldPosition,getBlockState(),getBlockState(),3);
     }
 
     @Nonnull

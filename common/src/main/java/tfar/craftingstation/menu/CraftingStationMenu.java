@@ -25,6 +25,7 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import tfar.craftingstation.slot.SlotFastCraft;
+import tfar.craftingstation.util.SideContainerWrapper;
 
 import javax.annotation.Nonnull;
 import java.util.EnumMap;
@@ -46,21 +47,19 @@ public class CraftingStationMenu extends AbstractContainerMenu {
 
     public final Map<Direction,Component> containerNames = new EnumMap<>(Direction.class);
     private final Player player;
-    private final ContainerData data;
     private final BlockPos pos;
     public Recipe<CraftingContainer> lastRecipe;
     public int subContainerSize = 0;
     protected Recipe<CraftingContainer> lastLastRecipe;
 
     public CraftingStationMenu(int id, Inventory inv,BlockPos pos) {
-        this(id, inv, new SimpleContainerData(1),new SimpleContainer(9),pos);
+        this(id, inv, new SimpleContainer(9),pos);
     }
 
 
-    public CraftingStationMenu(int id, Inventory inv, ContainerData data, SimpleContainer simpleContainer,BlockPos pos) {
+    public CraftingStationMenu(int id, Inventory inv, SimpleContainer simpleContainer,BlockPos pos) {
         super(ModMenuTypes.crafting_station, id);
         this.player = inv.player;
-        this.data = data;
         this.pos = pos;
         this.world = player.level();
         this.tileEntity = (CraftingStationBlockEntity) ModIntegration.getTileEntityAtPos(player.level(),pos);
@@ -76,15 +75,63 @@ public class CraftingStationMenu extends AbstractContainerMenu {
         addSideInventorySlots();
         addPlayerSlots(inv);
         slotsChanged(craftMatrix);
-        addDataSlots(data);
+    }
+
+    public static class SideContainerSlot extends Slot {
+
+
+        private final CraftingStationMenu craftingStationMenu;
+
+        public SideContainerSlot(int slot, int $$2, int $$3, CraftingStationMenu craftingStationMenu) {
+            super(new SimpleContainer(0), slot, $$2, $$3);
+            this.craftingStationMenu = craftingStationMenu;
+        }
+
+
+        @Override
+        public ItemStack getItem() {
+            return craftingStationMenu.getCurrentHandler().$getStack(getContainerSlot());
+        }
+
+        @Override
+        public ItemStack remove(int pAmount) {
+            return craftingStationMenu.getCurrentHandler().$removeStack(getContainerSlot(), pAmount);
+        }
+
+        @Override
+        public boolean mayPlace(ItemStack $$0) {
+            return craftingStationMenu.getCurrentHandler().$valid(getContainerSlot());
+        }
+
+        @Override
+        public void set(ItemStack $$0) {
+            craftingStationMenu.getCurrentHandler().$setStack(getContainerSlot(),$$0);
+        }
+    }
+
+    public SideContainerWrapper getCurrentHandler() {
+        return Services.PLATFORM.getWrapper(blockEntityMap.get(getSelectedContainer()));
     }
 
     protected void addSideInventorySlots() {
-
+        int rows = 9;
+        int cols = 6;
+        for (int row = 0; row < rows;row++) {
+            for (int col = 0;col < cols;col++) {
+                int index = col + cols * row;
+                int xPos = -117 + col * 18;
+                int yPos = 17+row * 18;
+                addSlot(new SideContainerSlot(index,xPos,yPos,this));
+            }
+        }
     }
 
     public boolean hasSideContainers() {
         return !blocks.isEmpty();
+    }
+
+    public Direction getSelectedContainer() {
+        return tileEntity.currentContainer;
     }
 
     //it goes crafting output slot | 0
@@ -136,15 +183,6 @@ public class CraftingStationMenu extends AbstractContainerMenu {
                 addSlot(new Slot(craftMatrix, x + 3 * y, 30 + 18 * x, 17 + 18 * y));
             }
         }
-    }
-
-
-    void setCurrentContainer(Direction container) {
-        data.set(0,container.ordinal());
-    }
-
-     public Direction getCurrentContainer() {
-        return Direction.values()[data.get(0)];
     }
 
     private void addPlayerSlots(Inventory playerInventory) {
