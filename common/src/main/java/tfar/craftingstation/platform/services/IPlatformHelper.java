@@ -1,12 +1,16 @@
 package tfar.craftingstation.platform.services;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import tfar.craftingstation.menu.CraftingStationMenu;
 import tfar.craftingstation.network.C2SModPacket;
 import tfar.craftingstation.network.S2CModPacket;
 import tfar.craftingstation.platform.MLConfig;
@@ -62,5 +66,9 @@ public interface IPlatformHelper {
     boolean hasCapability(BlockEntity blockEntity);
 
     MLConfig getConfig();
+
+    void openMenu(ServerPlayer player, MenuProvider menuProvider, BlockPos pos);
+
+    MenuType<CraftingStationMenu> customMenu();
 
 }

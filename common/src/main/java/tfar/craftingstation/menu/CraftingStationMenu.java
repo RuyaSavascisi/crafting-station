@@ -46,24 +46,24 @@ public class CraftingStationMenu extends AbstractContainerMenu {
 
     public final Map<Direction,Component> containerNames = new EnumMap<>(Direction.class);
     private final Player player;
-    private final ContainerLevelAccess access;
     private final ContainerData data;
+    private final BlockPos pos;
     public Recipe<CraftingContainer> lastRecipe;
     public int subContainerSize = 0;
     protected Recipe<CraftingContainer> lastLastRecipe;
 
-    public CraftingStationMenu(int id, Inventory inv) {
-        this(id, inv, ContainerLevelAccess.NULL,new SimpleContainerData(1),new SimpleContainer(9));
+    public CraftingStationMenu(int id, Inventory inv,BlockPos pos) {
+        this(id, inv, new SimpleContainerData(1),new SimpleContainer(9),pos);
     }
 
 
-    public CraftingStationMenu(int id, Inventory inv, ContainerLevelAccess access, ContainerData data, SimpleContainer simpleContainer) {
+    public CraftingStationMenu(int id, Inventory inv, ContainerData data, SimpleContainer simpleContainer,BlockPos pos) {
         super(ModMenuTypes.crafting_station, id);
         this.player = inv.player;
-        this.access = access;
         this.data = data;
+        this.pos = pos;
         this.world = player.level();
-        this.tileEntity = (CraftingStationBlockEntity) access.evaluate(ModIntegration::getTileEntityAtPos,null);
+        this.tileEntity = (CraftingStationBlockEntity) ModIntegration.getTileEntityAtPos(player.level(),pos);
         this.craftMatrix = new PersistantCraftingContainer(this, simpleContainer);
 
 
@@ -93,7 +93,6 @@ public class CraftingStationMenu extends AbstractContainerMenu {
     //player inventory | (10 + subContainerSides)
 
     protected void searchSideInventories() {
-        access.execute((level, pos) -> {
             ;
             // detect te
             for (Direction dir : Direction.values()) {
@@ -124,7 +123,6 @@ public class CraftingStationMenu extends AbstractContainerMenu {
                     //   }
                 }
             }
-        });
     }
 
 

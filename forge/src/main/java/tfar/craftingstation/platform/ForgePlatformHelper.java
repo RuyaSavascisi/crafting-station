@@ -1,21 +1,27 @@
 package tfar.craftingstation.platform;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.common.extensions.IForgeMenuType;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.network.NetworkDirection;
+import net.minecraftforge.network.NetworkHooks;
 import tfar.craftingstation.Configs;
 import tfar.craftingstation.client.CraftingStationScreen;
+import tfar.craftingstation.menu.CraftingStationMenu;
 import tfar.craftingstation.network.C2SModPacket;
 import tfar.craftingstation.network.PacketHandlerForge;
 import tfar.craftingstation.network.S2CModPacket;
@@ -95,5 +101,15 @@ public class ForgePlatformHelper implements IPlatformHelper {
     @Override
     public MLConfig getConfig() {
         return config;
+    }
+
+    @Override
+    public MenuType<CraftingStationMenu> customMenu() {
+        return IForgeMenuType.create((windowId, inv, data) -> new CraftingStationMenu(windowId,inv,data.readBlockPos()));
+    }
+
+    @Override
+    public void openMenu(ServerPlayer player, MenuProvider menuProvider, BlockPos pos) {
+        NetworkHooks.openScreen(player, menuProvider, pos);
     }
 }

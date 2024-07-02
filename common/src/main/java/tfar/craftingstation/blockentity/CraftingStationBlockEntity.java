@@ -85,7 +85,7 @@ public class CraftingStationBlockEntity extends BlockEntity implements MenuProvi
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(int id, Inventory playerInventory, Player player) {
-        return new CraftingStationMenu(id, playerInventory, ContainerLevelAccess.create(level,worldPosition), data, input);
+        return new CraftingStationMenu(id, playerInventory, data, input,worldPosition);
     }
 
     public void setCustomName(@Nullable Component pName) {

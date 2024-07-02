@@ -5,7 +5,6 @@ import tfar.craftingstation.platform.Services;
 public class PacketHandler {
 
     public static void registerPackets() {
-        Services.PLATFORM.registerServerPacket(C2SScreenUpdatePacket.class, C2SScreenUpdatePacket::new);
         registerClientPackets();
     }
 
