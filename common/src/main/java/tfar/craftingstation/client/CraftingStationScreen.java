@@ -29,7 +29,7 @@ public class CraftingStationScreen extends AbstractContainerScreen<CraftingStati
 
     private boolean isScrolling = false;
 
-    private int topRow;
+    private final int topRow;
 
     public CraftingStationScreen(CraftingStationMenu p_i51094_1_, Inventory p_i51094_2_, Component p_i51094_3_) {
         super(p_i51094_1_, p_i51094_2_, p_i51094_3_);
@@ -42,8 +42,10 @@ public class CraftingStationScreen extends AbstractContainerScreen<CraftingStati
         if (this.menu.hasSideContainers()) {
             for (int i = 0; i < Direction.values().length; i++) {
                 Direction direction = Direction.values()[i];
-                addRenderableWidget(new TabButton(leftPos - 128 + 21 * i, topPos - 22, 22, 28,
-                        button -> sendButtonToServer(CraftingStationMenu.ButtonAction.values()[direction.ordinal() + 1]), direction, this.getMenu()));
+                if (menu.blockEntityMap.containsKey(direction)) {
+                    addRenderableWidget(new TabButton(leftPos - 128 + 21 * i, topPos - 22, 22, 28,
+                            button -> sendButtonToServer(CraftingStationMenu.ButtonAction.values()[direction.ordinal() + 1]), direction, this.getMenu()));
+                }
             }
         }
         if (!Services.PLATFORM.isModLoaded("craftingtweaks")) {
@@ -106,8 +108,8 @@ public class CraftingStationScreen extends AbstractContainerScreen<CraftingStati
 
             bind(SCROLLBAR_BACKGROUND_AND_TAB);
             int totalSlots = menu.getCurrentHandler().$getSlotCount();
-            int slotsToDraw = Math.min(totalSlots,54);
-            if (hasScrollbar() && topRow == 0 - 9 && totalSlots % 6 != 0)
+            int slotsToDraw = Math.min(totalSlots,CraftingStationMenu.MAX_SLOTS);
+            if (hasScrollbar() && topRow == -9 && totalSlots % 6 != 0)
                 slotsToDraw = 54 - 6 + totalSlots % 6;
 
             int offset = hasScrollbar() ? -126 : -118;

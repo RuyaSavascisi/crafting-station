@@ -43,13 +43,12 @@ public class CraftingStationMenu extends AbstractContainerMenu {
     public final CraftingStationBlockEntity tileEntity;
 
     public Map<Direction,ItemStack> blocks = new EnumMap<>(Direction.class);
-    Map<Direction,BlockEntity> blockEntityMap = new EnumMap<>(Direction.class);
+    public Map<Direction,BlockEntity> blockEntityMap = new EnumMap<>(Direction.class);
 
     public final Map<Direction,Component> containerNames = new EnumMap<>(Direction.class);
     private final Player player;
     private final BlockPos pos;
     public Recipe<CraftingContainer> lastRecipe;
-    public int subContainerSize = 0;
     protected Recipe<CraftingContainer> lastLastRecipe;
 
     public CraftingStationMenu(int id, Inventory inv,BlockPos pos) {
@@ -130,6 +129,11 @@ public class CraftingStationMenu extends AbstractContainerMenu {
     public boolean hasSideContainers() {
         return !blocks.isEmpty();
     }
+
+    public int subContainerSize() {
+        return getCurrentHandler().$getSlotCount();
+    }
+
 
     public Direction getSelectedContainer() {
         return currentContainer;
@@ -291,7 +295,7 @@ public class CraftingStationMenu extends AbstractContainerMenu {
             nothingDone &= !moveToPlayerInventory(stack);
 
             // Try moving module -> tile inventory
-            nothingDone &= !mergeItemStackMove(stack, 10, 10 + subContainerSize);
+            nothingDone &= !mergeItemStackMove(stack, 10, 10 + subContainerSize());
         }
 
         // Is the slot an input slot??
@@ -305,7 +309,7 @@ public class CraftingStationMenu extends AbstractContainerMenu {
             nothingDone &= !moveToSideInventory(stack);
         }
         // Is the slot from the side inventories?
-        else if (index < 10 + subContainerSize) {
+        else if (index < 10 + subContainerSize()) {
             // Try moving crafting station -> preferred modules
             nothingDone = !moveToCraftingStation(stack);
 
@@ -313,7 +317,7 @@ public class CraftingStationMenu extends AbstractContainerMenu {
             nothingDone &= !moveToPlayerInventory(stack);
         }
         // Slot is from the player inventory
-        else if (index >= 10 + subContainerSize) {
+        else if (index >= 10 + subContainerSize()) {
             // try moving player -> modules
             nothingDone = !moveToCraftingStation(stack);
 
@@ -429,15 +433,15 @@ public class CraftingStationMenu extends AbstractContainerMenu {
 
     //return true if anything happened
     protected boolean moveToSideInventory(@Nonnull ItemStack itemstack) {
-        return hasSideContainers() && this.mergeItemStackMove(itemstack, 10, 10 + subContainerSize);
+        return hasSideContainers() && this.mergeItemStackMove(itemstack, 10, 10 + subContainerSize());
     }
 
     protected boolean moveToPlayerInventory(@Nonnull ItemStack itemstack) {
-        return this.moveItemStackTo(itemstack, 10 + subContainerSize, this.slots.size(), false);
+        return this.moveItemStackTo(itemstack, 10 + subContainerSize(), this.slots.size(), false);
     }
 
     protected boolean refillSideInventory(@Nonnull ItemStack itemStack) {
-        return this.mergeItemStackRefill(itemStack, 10, 10 + subContainerSize);
+        return this.mergeItemStackRefill(itemStack, 10, 10 + subContainerSize());
     }
 
     protected boolean moveToCraftingStation(@Nonnull ItemStack itemstack) {
