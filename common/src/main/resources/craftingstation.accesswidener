@@ -18,3 +18,8 @@ accessible class net/minecraft/world/inventory/MenuType$MenuSupplier
 accessible method net/minecraft/world/inventory/MenuType <init> (Lnet/minecraft/world/inventory/MenuType$MenuSupplier;Lnet/minecraft/world/flag/FeatureFlagSet;)V
 
 accessible field net/minecraft/world/SimpleContainer items Lnet/minecraft/core/NonNullList;
+
+extendable method net/minecraft/world/inventory/AbstractContainerMenu synchronizeSlotToRemote (ILnet/minecraft/world/item/ItemStack;Ljava/util/function/Supplier;)V
+accessible field net/minecraft/world/inventory/AbstractContainerMenu remoteSlots Lnet/minecraft/core/NonNullList;
+accessible field net/minecraft/world/inventory/AbstractContainerMenu synchronizer Lnet/minecraft/world/inventory/ContainerSynchronizer;
+accessible field net/minecraft/world/inventory/AbstractContainerMenu suppressRemoteUpdates Z

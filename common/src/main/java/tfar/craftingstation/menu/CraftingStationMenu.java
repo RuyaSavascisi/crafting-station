@@ -31,6 +31,7 @@ import javax.annotation.Nonnull;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class CraftingStationMenu extends AbstractContainerMenu {
@@ -42,26 +43,27 @@ public class CraftingStationMenu extends AbstractContainerMenu {
     public final Level world;
     public final CraftingStationBlockEntity tileEntity;
 
-    public Map<Direction,ItemStack> blocks = new EnumMap<>(Direction.class);
-    public Map<Direction,BlockEntity> blockEntityMap = new EnumMap<>(Direction.class);
+    public Map<Direction, ItemStack> blocks = new EnumMap<>(Direction.class);
+    public Map<Direction, BlockEntity> blockEntityMap = new EnumMap<>(Direction.class);
 
-    public final Map<Direction,Component> containerNames = new EnumMap<>(Direction.class);
+    public final Map<Direction, Component> containerNames = new EnumMap<>(Direction.class);
     private final Player player;
     private final BlockPos pos;
     public Recipe<CraftingContainer> lastRecipe;
     protected Recipe<CraftingContainer> lastLastRecipe;
+    private int firstSlot;
 
-    public CraftingStationMenu(int id, Inventory inv,BlockPos pos) {
-        this(id, inv, new SimpleContainer(9),pos);
+    public CraftingStationMenu(int id, Inventory inv, BlockPos pos) {
+        this(id, inv, new SimpleContainer(9), pos);
     }
 
 
-    public CraftingStationMenu(int id, Inventory inv, SimpleContainer simpleContainer,BlockPos pos) {
+    public CraftingStationMenu(int id, Inventory inv, SimpleContainer simpleContainer, BlockPos pos) {
         super(ModMenuTypes.crafting_station, id);
         this.player = inv.player;
         this.pos = pos;
         this.world = player.level();
-        this.tileEntity = (CraftingStationBlockEntity) ModIntegration.getTileEntityAtPos(player.level(),pos);
+        this.tileEntity = (CraftingStationBlockEntity) ModIntegration.getTileEntityAtPos(player.level(), pos);
         setCurrentContainer(tileEntity.getCurrentContainer());
         this.craftMatrix = new PersistantCraftingContainer(this, simpleContainer);
 
@@ -90,23 +92,28 @@ public class CraftingStationMenu extends AbstractContainerMenu {
 
         @Override
         public ItemStack getItem() {
-            return craftingStationMenu.getCurrentHandler().$getStack(getContainerSlot());
+            return craftingStationMenu.getCurrentHandler().$getStack(getActualSlot());
         }
 
         @Override
         public ItemStack remove(int pAmount) {
-            return craftingStationMenu.getCurrentHandler().$removeStack(getContainerSlot(), pAmount);
+            return craftingStationMenu.getCurrentHandler().$removeStack(getActualSlot(), pAmount);
         }
 
         @Override
         public boolean mayPlace(ItemStack $$0) {
-            return craftingStationMenu.getCurrentHandler().$valid(getContainerSlot());
+            return craftingStationMenu.getCurrentHandler().$valid(getActualSlot());
         }
 
         @Override
         public void set(ItemStack $$0) {
-            craftingStationMenu.getCurrentHandler().$setStack(getContainerSlot(),$$0);
+            craftingStationMenu.getCurrentHandler().$setStack(getActualSlot(), $$0);
         }
+
+        public int getActualSlot() {
+            return getContainerSlot() + craftingStationMenu.firstSlot;
+        }
+
     }
 
     public SideContainerWrapper getCurrentHandler() {
@@ -116,12 +123,12 @@ public class CraftingStationMenu extends AbstractContainerMenu {
     protected void addSideInventorySlots() {
         int rows = 9;
         int cols = 6;
-        for (int row = 0; row < rows;row++) {
-            for (int col = 0;col < cols;col++) {
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < cols; col++) {
                 int index = col + cols * row;
-                int xPos = -117 + col * 18;
-                int yPos = 17+row * 18;
-                addSlot(new SideContainerSlot(index,xPos,yPos,this));
+                int xPos = (needsScroll() ? -125 : -117) + col * 18;
+                int yPos = 17 + row * 18;
+                addSlot(new SideContainerSlot(index, xPos, yPos, this));
             }
         }
     }
@@ -145,36 +152,36 @@ public class CraftingStationMenu extends AbstractContainerMenu {
     //player inventory | (10 + subContainerSides)
 
     protected void searchSideInventories() {
-            ;
-            // detect te
-            for (Direction dir : Direction.values()) {
-                BlockPos neighbor = pos.relative(dir);
+        ;
+        // detect te
+        for (Direction dir : Direction.values()) {
+            BlockPos neighbor = pos.relative(dir);
 
-                BlockEntity te = world.getBlockEntity(neighbor);
-                if (te != null && !(te instanceof CraftingStationBlockEntity)) {
-                    // if blacklisted, skip checks entirely
-                    if (CommonTagUtil.isIn(CraftingStation.blacklisted,te.getType()))
-                        continue;
-                    if (te instanceof Container container && !container.stillValid(player)) {
-                        continue;
-                    }
-
-                    // try internal access first
-                    if (Services.PLATFORM.hasCapability(te)) {
-                        blockEntityMap.put(dir, te);
-                        blocks.put(dir,new ItemStack(world.getBlockState(neighbor).getBlock()));
-                        containerNames.put(dir,te instanceof MenuProvider menuProvider? menuProvider.getDisplayName() : te.getBlockState().getBlock().getName());
-                    }
-                    // try sided access else
-                    //      if(te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, dir.getOpposite())) {
-                    //        if(te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, dir.getOpposite()) instanceof IItemHandlerModifiable) {
-                    //          inventoryTE = te;
-                    //         accessDir = dir.getOpposite();
-                    //         break;
-                    //       }
-                    //   }
+            BlockEntity te = world.getBlockEntity(neighbor);
+            if (te != null && !(te instanceof CraftingStationBlockEntity)) {
+                // if blacklisted, skip checks entirely
+                if (CommonTagUtil.isIn(CraftingStation.blacklisted, te.getType()))
+                    continue;
+                if (te instanceof Container container && !container.stillValid(player)) {
+                    continue;
                 }
+
+                // try internal access first
+                if (Services.PLATFORM.hasCapability(te)) {
+                    blockEntityMap.put(dir, te);
+                    blocks.put(dir, new ItemStack(world.getBlockState(neighbor).getBlock()));
+                    containerNames.put(dir, te instanceof MenuProvider menuProvider ? menuProvider.getDisplayName() : te.getBlockState().getBlock().getName());
+                }
+                // try sided access else
+                //      if(te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, dir.getOpposite())) {
+                //        if(te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, dir.getOpposite()) instanceof IItemHandlerModifiable) {
+                //          inventoryTE = te;
+                //         accessDir = dir.getOpposite();
+                //         break;
+                //       }
+                //   }
             }
+        }
     }
 
 
@@ -210,9 +217,9 @@ public class CraftingStationMenu extends AbstractContainerMenu {
     //public void setAll(List<ItemStack> p_190896_1_) {
     //    craftMatrix.setDoNotCallUpdates(true);
     //    super.setAll(p_190896_1_);
-     //   craftMatrix.setDoNotCallUpdates(false);
-     //   craftMatrix.onCraftMatrixChanged();
-   // }
+    //   craftMatrix.setDoNotCallUpdates(false);
+    //   craftMatrix.onCraftMatrixChanged();
+    // }
 
     @Override
     public void slotsChanged(Container inventory) {
@@ -355,7 +362,7 @@ public class CraftingStationMenu extends AbstractContainerMenu {
 
         // if we have a recipe, fetch its result
         if (lastRecipe != null) {
-            itemstack = lastRecipe.assemble(inv,world.registryAccess());
+            itemstack = lastRecipe.assemble(inv, world.registryAccess());
         }
         // set the slot on both sides, client is for display/so the client knows about the recipe
         result.setItem(0, itemstack);
@@ -382,7 +389,7 @@ public class CraftingStationMenu extends AbstractContainerMenu {
 
     private void syncResultToAllOpenWindows(final ItemStack stack, List<ServerPlayer> players) {
         players.forEach(otherPlayer -> {
-            otherPlayer.containerMenu.setItem(0,this.getStateId(), stack);
+            otherPlayer.containerMenu.setItem(0, this.getStateId(), stack);
             //otherPlayer.connection.sendPacket(new SPacketSetSlot(otherPlayer.openContainer.windowId, SLOT_RESULT, stack));
         });
     }
@@ -537,11 +544,11 @@ public class CraftingStationMenu extends AbstractContainerMenu {
     public void updateLastRecipeFromServer(Recipe<CraftingContainer> recipe) {
         lastRecipe = recipe;
         // if no recipe, set to empty to prevent ghost outputs when another player grabs the result
-        this.craftResult.setItem(0, recipe != null ? recipe.assemble(craftMatrix,world.registryAccess()) : ItemStack.EMPTY);
+        this.craftResult.setItem(0, recipe != null ? recipe.assemble(craftMatrix, world.registryAccess()) : ItemStack.EMPTY);
     }
 
     public boolean needsScroll() {
-        return false;
+        return getCurrentHandler().$getSlotCount() > MAX_SLOTS;
     }
 
     protected Direction currentContainer;
@@ -557,7 +564,7 @@ public class CraftingStationMenu extends AbstractContainerMenu {
 
 
     public enum ButtonAction {
-        CLEAR,TAB_0,TAB_1,TAB_2,TAB_3,TAB_4,TAB_5;
+        CLEAR, TAB_0, TAB_1, TAB_2, TAB_3, TAB_4, TAB_5;
         static final ButtonAction[] VALUES = values();
     }
 
@@ -588,7 +595,25 @@ public class CraftingStationMenu extends AbstractContainerMenu {
         }
     }
 
-    public  void setClientData(Map<Direction,ItemStack> icons) {
-        this.blocks = icons;
+    public void setFirstSlot(int firstSlot) {
+        this.firstSlot = firstSlot;
+    }
+
+    public int getFirstSlot() {
+        return firstSlot;
+    }
+
+    public void synchronizeSlotToRemote(int pSlotIndex, ItemStack pStack, Supplier<ItemStack> pSupplier) {
+        if (!this.suppressRemoteUpdates) {
+            ItemStack itemstack = this.remoteSlots.get(pSlotIndex);
+            if (true || !ItemStack.matches(itemstack, pStack)) {
+                ItemStack itemstack1 = pSupplier.get();
+                this.remoteSlots.set(pSlotIndex, itemstack1);
+                if (this.synchronizer != null) {
+                    // Forge: Only synchronize a slot change if the itemstack actually changed in a way that is relevant to the client (i.e. share tag changed)
+                    this.synchronizer.sendSlotChange(this, pSlotIndex, itemstack1);
+                }
+            }
+        }
     }
 }

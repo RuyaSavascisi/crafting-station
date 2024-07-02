@@ -1,16 +1,13 @@
 package tfar.craftingstation.platform;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
@@ -21,7 +18,6 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkHooks;
 import tfar.craftingstation.Configs;
-import tfar.craftingstation.client.CraftingStationScreen;
 import tfar.craftingstation.menu.CraftingStationMenu;
 import tfar.craftingstation.network.C2SModPacket;
 import tfar.craftingstation.network.PacketHandlerForge;
@@ -77,14 +73,6 @@ public class ForgePlatformHelper implements IPlatformHelper {
     @Override
     public <MSG extends C2SModPacket> void registerServerPacket(Class<MSG>  packetLocation, Function<FriendlyByteBuf, MSG> reader) {
         PacketHandlerForge.INSTANCE.registerMessage(i++, packetLocation, MSG::write, reader, PacketHandlerForge.wrapC2S());
-    }
-
-    @Override
-    public void updateLastRecipeTemp(ResourceLocation rec) {
-        if (Minecraft.getInstance().screen instanceof CraftingStationScreen) {
-            Recipe<?> r = Minecraft.getInstance().level.getRecipeManager().byKey(rec).orElse(null);
-            ((CraftingStationScreen) Minecraft.getInstance().screen).getMenu().updateLastRecipeFromServer((Recipe<CraftingContainer>) r);
-        }
     }
 
     @Override

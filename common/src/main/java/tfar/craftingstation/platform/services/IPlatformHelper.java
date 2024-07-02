@@ -2,7 +2,6 @@ package tfar.craftingstation.platform.services;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
@@ -57,8 +56,6 @@ public interface IPlatformHelper {
 
     void sendToClient(S2CModPacket msg, ServerPlayer player);
     void sendToServer(C2SModPacket msg);
-
-    void updateLastRecipeTemp(ResourceLocation rec);
 
     void forgeHooks$setCraftingPlayer(Player player);
 

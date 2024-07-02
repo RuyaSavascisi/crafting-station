@@ -11,33 +11,6 @@ import java.util.List;
 
 @REIPluginCommon
 public class ReiPlugin implements REIServerPlugin {
- // @Override
- // public void registerRecipeTransferHandlers(IRecipeTransferRegistration registration) {
- //   registration.addRecipeTransferHandler(new CraftingStationTransferInfo());
-  //}
-
-  //@Override
-  //public void registerMenuInfo(MenuInfoRegistry registry) {
-    //registry.register(BuiltinPlugin.CRAFTING, CraftingStationMenu.class, SimpleMenuInfoProvider.of(CraftingStationGridMenuInfo::new));
- // }
-
-
-  // @Override
- // public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
- //   registration.addRecipeCatalyst(new ItemStack(ModBlocks.crafting_station), RecipeTypes.CRAFTING);
- //   registration.addRecipeCatalyst(new ItemStack(ModBlocks.crafting_station_slab),RecipeTypes.CRAFTING);
-  //}
-
- /// @Nonnull
- // @Override
- // public ResourceLocation getPluginUid() {
- //   return new ResourceLocation(CraftingStationForge.MODID, CraftingStationForge.MODID);
-//  }
-
-//  @Override
-//  public void registerGuiHandlers(IGuiHandlerRegistration registration) {
- //   registration.addGuiContainerHandler(CraftingStationScreen.class,this);
- // }
 
   @Nonnull
  // @Override

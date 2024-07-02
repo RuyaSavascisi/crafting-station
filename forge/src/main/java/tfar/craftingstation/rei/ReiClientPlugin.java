@@ -3,6 +3,7 @@ package tfar.craftingstation.rei;
 import me.shedaniel.math.Rectangle;
 import me.shedaniel.rei.api.client.plugins.REIClientPlugin;
 import me.shedaniel.rei.api.client.registry.category.CategoryRegistry;
+import me.shedaniel.rei.api.client.registry.screen.ExclusionZones;
 import me.shedaniel.rei.api.client.registry.screen.ScreenRegistry;
 import me.shedaniel.rei.api.client.registry.transfer.TransferHandlerRegistry;
 import me.shedaniel.rei.api.common.util.EntryStacks;
@@ -40,14 +41,16 @@ public class ReiClientPlugin implements REIClientPlugin {
     registry.registerContainerClickArea(new Rectangle(88, 32, 28, 23), CraftingStationScreen.class, CRAFTING);
   }
 
-  @Nonnull
-  //@Override
-  public List<Rect2i> getGuiExtraAreas(CraftingStationScreen containerScreen) {
-    List<Rect2i> areas = new ArrayList<>();
-    if (containerScreen.getMenu().hasSideContainers()){
-      int x = (containerScreen.width - 140) / 2 - 140;
-      int y = (containerScreen.height - 180) / 2 - 16;
-      areas.add(new Rect2i(x, y, 140, 196));    }
-    return areas;
+  @Override
+  public void registerExclusionZones(ExclusionZones zones) {
+    zones.register(CraftingStationScreen.class,screen -> {
+      List<Rectangle> areas = new ArrayList<>();
+      if (screen.getMenu().hasSideContainers()){
+        int x = (screen.width - 140) / 2 - 140;
+        int y = (screen.height - 180) / 2 - 16;
+        areas.add(new Rectangle(x, y, 140, 196));
+      }
+      return areas;
+    });
   }
 }

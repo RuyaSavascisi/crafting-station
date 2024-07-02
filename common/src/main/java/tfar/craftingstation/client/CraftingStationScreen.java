@@ -11,6 +11,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.network.chat.Component;
+import tfar.craftingstation.network.C2SScrollPacket;
 import tfar.craftingstation.platform.Services;
 
 public class CraftingStationScreen extends AbstractContainerScreen<CraftingStationMenu> {
@@ -29,11 +30,8 @@ public class CraftingStationScreen extends AbstractContainerScreen<CraftingStati
 
     private boolean isScrolling = false;
 
-    private final int topRow;
-
     public CraftingStationScreen(CraftingStationMenu p_i51094_1_, Inventory p_i51094_2_, Component p_i51094_3_) {
         super(p_i51094_1_, p_i51094_2_, p_i51094_3_);
-        topRow = 0;
     }
 
     @Override
@@ -109,8 +107,6 @@ public class CraftingStationScreen extends AbstractContainerScreen<CraftingStati
             bind(SCROLLBAR_BACKGROUND_AND_TAB);
             int totalSlots = menu.getCurrentHandler().$getSlotCount();
             int slotsToDraw = Math.min(totalSlots,CraftingStationMenu.MAX_SLOTS);
-            if (hasScrollbar() && topRow == -9 && totalSlots % 6 != 0)
-                slotsToDraw = 54 - 6 + totalSlots % 6;
 
             int offset = hasScrollbar() ? -126 : -118;
 
@@ -156,7 +152,7 @@ public class CraftingStationScreen extends AbstractContainerScreen<CraftingStati
             if (mouseX <= k2 && mouseX >= k1) {
                 this.currentScroll = (mouseY - j1) / (j2 - j1 - 0f);
                 currentScroll = Mth.clamp(currentScroll, 0, 1);
-                scrollTo(currentScroll);
+                scrollDrag(currentScroll);
             }
         }
         return super.mouseDragged(mouseX, mouseY, p_mouseDragged_5_, p_mouseDragged_6_, p_mouseDragged_8_);
@@ -176,16 +172,30 @@ public class CraftingStationScreen extends AbstractContainerScreen<CraftingStati
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollDelta) {
 
         if (this.hasScrollbar() && mouseX < leftPos && mouseX > leftPos - 20) {
-            setTopRow((int) (topRow - scrollDelta), false);
+            scrollMouse(scrollDelta);
             return true;
         }
         return false;
     }
 
-    private void scrollTo(double scroll) {
+
+
+    private void scrollDrag(double scroll) {
+        int firstSlot = (int) (scroll * (menu.subContainerSize() - CraftingStationMenu.MAX_SLOTS));//30 -> 81
+        menu.setFirstSlot(firstSlot);
+        Services.PLATFORM.sendToServer(new C2SScrollPacket(firstSlot));
     }
 
-    private void setTopRow(int offset, boolean smooth) {
+    private void scrollMouse(double scrollDelta) {
+        int firstSlot = (int) Mth.clamp(menu.getFirstSlot() - scrollDelta * 6,0,menu.subContainerSize() -CraftingStationMenu.MAX_SLOTS);//30 -> 81
+        menu.setFirstSlot(firstSlot);
+        setScrollPos();
+        Services.PLATFORM.sendToServer(new C2SScrollPacket(firstSlot));
+    }
+
+    void setScrollPos() {
+        double scroll = ((double)menu.getFirstSlot()) /(menu.subContainerSize() - CraftingStationMenu.MAX_SLOTS);
+        currentScroll = Mth.clamp(scroll,0,1);
     }
 }
 
