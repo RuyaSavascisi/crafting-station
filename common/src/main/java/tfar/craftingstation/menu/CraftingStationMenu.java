@@ -10,6 +10,7 @@ import tfar.craftingstation.PersistantCraftingContainer;
 import tfar.craftingstation.blockentity.CraftingStationBlockEntity;
 import tfar.craftingstation.init.ModMenuTypes;
 import tfar.craftingstation.network.S2CLastRecipePacket;
+import tfar.craftingstation.network.S2CSideSetSideContainerSlot;
 import tfar.craftingstation.platform.Services;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -29,6 +30,7 @@ import tfar.craftingstation.util.SideContainerWrapper;
 
 import javax.annotation.Nonnull;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -553,7 +555,7 @@ public class CraftingStationMenu extends AbstractContainerMenu {
 
     protected Direction currentContainer;
 
-    void setCurrentContainer(Direction currentContainer) {
+    public void setCurrentContainer(Direction currentContainer) {
         this.currentContainer = currentContainer;
     }
 
@@ -602,6 +604,30 @@ public class CraftingStationMenu extends AbstractContainerMenu {
     public int getFirstSlot() {
         return firstSlot;
     }
+
+    @Override
+    public void broadcastChanges() {
+        super.broadcastChanges();
+        if (hasSideContainers()) {
+            syncSideContainers();
+        }
+    }
+
+
+    public void syncSideContainers() {
+        for (Map.Entry<Direction,BlockEntity> entry : blockEntityMap.entrySet()) {
+            Direction direction = entry.getKey();
+            BlockEntity blockEntity = entry.getValue();
+            SideContainerWrapper wrapper = Services.PLATFORM.getWrapper(blockEntity);
+            if (wrapper != null) {
+                for (int i = 0; i < wrapper.$getSlotCount();i++) {
+                    Services.PLATFORM.sendToClient(new S2CSideSetSideContainerSlot(wrapper.$getStack(i), direction, i),(ServerPlayer) player);
+                }
+            }
+        }
+    }
+
+
 
     public void synchronizeSlotToRemote(int pSlotIndex, ItemStack pStack, Supplier<ItemStack> pSupplier) {
         if (!this.suppressRemoteUpdates) {

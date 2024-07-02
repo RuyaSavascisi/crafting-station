@@ -3,12 +3,10 @@ package tfar.craftingstation.rei;
 import me.shedaniel.rei.api.client.registry.transfer.simple.SimpleTransferHandler;
 import me.shedaniel.rei.api.common.category.CategoryIdentifier;
 import me.shedaniel.rei.api.common.transfer.info.stack.SlotAccessor;
-import me.shedaniel.rei.api.common.transfer.info.stack.VanillaSlotAccessor;
 import me.shedaniel.rei.plugin.common.displays.crafting.DefaultCraftingDisplay;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import org.spongepowered.asm.mixin.injection.struct.InjectorGroupInfo;
 import tfar.craftingstation.menu.CraftingStationMenu;
 import tfar.craftingstation.platform.Services;
 import tfar.craftingstation.util.SideContainerWrapper;
@@ -57,7 +55,7 @@ public class CraftingStationTransferHandler implements SimpleTransferHandler {
         for (Map.Entry<Direction,BlockEntity> entry : craftingStationMenu.blockEntityMap.entrySet()) {
             SideContainerWrapper sideContainerWrapper = Services.PLATFORM.getWrapper(entry.getValue());
             for (int i = 0; i < sideContainerWrapper.$getSlotCount();i++) {
-                list.add(new SideContainerSlotAccessor(sideContainerWrapper, i));
+                list.add(new SideContainerSlotAccessor(sideContainerWrapper, i,entry.getKey()));
             }
         }
 

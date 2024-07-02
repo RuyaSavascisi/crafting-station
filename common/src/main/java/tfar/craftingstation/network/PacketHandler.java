@@ -11,7 +11,7 @@ public class PacketHandler {
 
     public static void registerClientPackets() {
         Services.PLATFORM.registerClientPacket(S2CLastRecipePacket.class,S2CLastRecipePacket::new);
-
+        Services.PLATFORM.registerClientPacket(S2CSideSetSideContainerSlot.class,S2CSideSetSideContainerSlot::new);
     }
 
 }

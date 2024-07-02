@@ -42,7 +42,10 @@ public class CraftingStationScreen extends AbstractContainerScreen<CraftingStati
                 Direction direction = Direction.values()[i];
                 if (menu.blockEntityMap.containsKey(direction)) {
                     addRenderableWidget(new TabButton(leftPos - 128 + 21 * i, topPos - 22, 22, 28,
-                            button -> sendButtonToServer(CraftingStationMenu.ButtonAction.values()[direction.ordinal() + 1]), direction, this.getMenu()));
+                            button -> {
+                        menu.setCurrentContainer(direction);
+                                sendButtonToServer(CraftingStationMenu.ButtonAction.values()[direction.ordinal() + 1]);
+                            }, direction, this.getMenu()));
                 }
             }
         }
