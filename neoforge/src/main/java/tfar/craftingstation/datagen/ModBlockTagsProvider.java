@@ -3,6 +3,7 @@ package tfar.craftingstation.datagen;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.tags.BlockTags;
+import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.data.BlockTagsProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import tfar.craftingstation.CraftingStation;
@@ -19,5 +20,6 @@ public class ModBlockTagsProvider extends BlockTagsProvider {
     @Override
     protected void addTags(HolderLookup.Provider pProvider) {
         tag(BlockTags.MINEABLE_WITH_AXE).add(ModBlocks.crafting_station,ModBlocks.crafting_station_slab);
+        tag(Tags.Blocks.PLAYER_WORKSTATIONS_CRAFTING_TABLES).add(ModBlocks.crafting_station,ModBlocks.crafting_station_slab);
     }
 }
