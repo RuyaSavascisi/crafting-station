@@ -48,14 +48,14 @@ public class CraftingStationBlockEntity extends BlockEntity implements MenuProvi
             }
 
             @Override
-            public ListTag createTag(HolderLookup.Provider pRegistries) {
-                ListTag $$0 = new ListTag();
+            public ListTag createTag(HolderLookup.Provider pLevelRegistry) {
+                ListTag listtag = new ListTag();
 
                 for(int i = 0; i < this.getContainerSize(); ++i) {
-                    ItemStack $$2 = this.getItem(i);
-                        $$0.add($$2.save(pRegistries, new CompoundTag()));
+                    ItemStack itemstack = this.getItem(i);
+                    listtag.add(itemstack.saveOptional(pLevelRegistry));
                 }
-                return $$0;
+                return listtag;
             }
         };
     }
