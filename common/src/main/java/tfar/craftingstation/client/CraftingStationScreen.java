@@ -71,14 +71,14 @@ public class CraftingStationScreen extends AbstractContainerScreen<CraftingStati
     }
 
     @Override
-    public void render(GuiGraphics stack, int mouseX, int mouseY, float partialTicks) {
-        renderBlurredBackground(partialTicks);
-        super.render(stack, mouseX, mouseY, partialTicks);
-        renderTooltip(stack, mouseX, mouseY);
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        super.render(graphics, mouseX, mouseY, partialTicks);
+        renderTooltip(graphics, mouseX, mouseY);
     }
 
-    protected void renderLabels(GuiGraphics stack, int p_146979_1_, int p_146979_2_) {
-        super.renderLabels(stack, p_146979_1_, p_146979_2_);
+    @Override
+    protected void renderLabels(GuiGraphics stack, int mouseX, int mouseY) {
+        super.renderLabels(stack, mouseX, mouseY);
         if (menu.hasSideContainers()) {
             stack.drawString(font, getTruncatedString(), -122, 6, 0x404040, false);
         }

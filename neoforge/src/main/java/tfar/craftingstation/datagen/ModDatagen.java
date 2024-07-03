@@ -17,5 +17,6 @@ public class ModDatagen {
         ExistingFileHelper existingFileHelper = e.getExistingFileHelper();
         CompletableFuture<HolderLookup.Provider> lookup = e.getLookupProvider();
         dataGenerator.addProvider(e.includeServer(),new ModBlockTagsProvider(packOutput,lookup,existingFileHelper));
+        dataGenerator.addProvider(e.includeServer(),new ModDataMapsProvider(packOutput,lookup));
     }
 }
