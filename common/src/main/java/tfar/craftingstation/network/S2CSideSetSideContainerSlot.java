@@ -12,7 +12,7 @@ public record S2CSideSetSideContainerSlot(ItemStack stack, Direction direction, 
 
     public static final CustomPacketPayload.Type<S2CSideSetSideContainerSlot> TYPE = new CustomPacketPayload.Type<>(PacketHandler.packet(S2CSideSetSideContainerSlot.class));
     public static final StreamCodec<RegistryFriendlyByteBuf, S2CSideSetSideContainerSlot> STREAM_CODEC = StreamCodec.composite(
-            ItemStack.STREAM_CODEC,
+            ItemStack.OPTIONAL_STREAM_CODEC,
             S2CSideSetSideContainerSlot::stack,
             Direction.STREAM_CODEC,
             S2CSideSetSideContainerSlot::direction,

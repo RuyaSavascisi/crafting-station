@@ -3,11 +3,10 @@
   "group": "crafting_station",
   "ingredients": [
     {
-      "item": "craftingstation:crafting_station"
+      "item": "minecraft:crafting_table"
     }
   ],
   "result": {
-    "item": "craftingstation:crafting_station_slab",
-    "count": 2
+    "id": "craftingstation:crafting_station"
   }
 }
