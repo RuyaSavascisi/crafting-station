@@ -1,21 +1,20 @@
 package tfar.craftingstation.network;
 
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import tfar.craftingstation.menu.CraftingStationMenu;
 
-public class C2SScrollPacket implements C2SModPacket{
+public record C2SScrollPacket(int firstSlot) implements C2SModPacket{
 
-    int firstSlot;
-
-    public C2SScrollPacket(int firstSlot) {
-        this.firstSlot = firstSlot;
-    }
-
-    public C2SScrollPacket(FriendlyByteBuf buf) {
-        firstSlot = buf.readInt();
-    }
+    public static final CustomPacketPayload.Type<C2SScrollPacket> TYPE = new CustomPacketPayload.Type<>(PacketHandler.packet(C2SScrollPacket.class));
+    public static final StreamCodec<RegistryFriendlyByteBuf, C2SScrollPacket> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.INT,
+            C2SScrollPacket::firstSlot,
+            C2SScrollPacket::new);
 
     @Override
     public void handleServer(ServerPlayer player) {
@@ -25,8 +24,9 @@ public class C2SScrollPacket implements C2SModPacket{
         }
     }
 
+
     @Override
-    public void write(FriendlyByteBuf to) {
-        to.writeInt(firstSlot);
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 }

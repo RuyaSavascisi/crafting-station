@@ -15,11 +15,11 @@ import tfar.craftingstation.network.C2SScrollPacket;
 import tfar.craftingstation.platform.Services;
 
 public class CraftingStationScreen extends AbstractContainerScreen<CraftingStationMenu> {
-    public static final ResourceLocation CRAFTING_TABLE_GUI_TEXTURES = new ResourceLocation("textures/gui/container/crafting_table.png");
+    public static final ResourceLocation CRAFTING_TABLE_GUI_TEXTURES = ResourceLocation.parse("textures/gui/container/crafting_table.png");
 
-    public static final ResourceLocation SCROLLBAR_AND_TAB = new ResourceLocation("textures/gui/container/creative_inventory/tabs.png");
+    public static final ResourceLocation SCROLLBAR_AND_TAB = ResourceLocation.parse("textures/gui/container/creative_inventory/tabs.png");
 
-    private static final ResourceLocation SCROLLBAR_BACKGROUND_AND_TAB = new ResourceLocation("textures/gui/container/creative_inventory/tab_items.png");
+    private static final ResourceLocation SCROLLBAR_BACKGROUND_AND_TAB = ResourceLocation.parse("textures/gui/container/creative_inventory/tab_items.png");
 
     public static final ResourceLocation SECONDARY_GUI_TEXTURE = CraftingStation.id("textures/gui/secondary.png");
 
@@ -72,7 +72,7 @@ public class CraftingStationScreen extends AbstractContainerScreen<CraftingStati
 
     @Override
     public void render(GuiGraphics stack, int mouseX, int mouseY, float partialTicks) {
-        renderBackground(stack);
+        renderBlurredBackground(partialTicks);
         super.render(stack, mouseX, mouseY, partialTicks);
         renderTooltip(stack, mouseX, mouseY);
     }
@@ -172,10 +172,10 @@ public class CraftingStationScreen extends AbstractContainerScreen<CraftingStati
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double scrollDelta) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double pScrollX, double pScrollY) {
 
         if (this.hasScrollbar() && mouseX < leftPos && mouseX > leftPos - 20) {
-            scrollMouse(scrollDelta);
+            scrollMouse(pScrollY);
             return true;
         }
         return false;

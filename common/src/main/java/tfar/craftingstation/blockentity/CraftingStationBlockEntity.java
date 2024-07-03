@@ -1,6 +1,7 @@
 package tfar.craftingstation.blockentity;
 
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.SimpleContainer;
@@ -38,21 +39,21 @@ public class CraftingStationBlockEntity extends BlockEntity implements MenuProvi
             }
 
             @Override
-            public void fromTag(ListTag pContainerNbt) {
+            public void fromTag(ListTag pContainerNbt,HolderLookup.Provider pRegistries) {
                 items.clear();
                 for(int i = 0; i < pContainerNbt.size(); ++i) {
-                    ItemStack itemstack = ItemStack.of(pContainerNbt.getCompound(i));
+                    ItemStack itemstack = ItemStack.parseOptional(pRegistries, pContainerNbt.getCompound(i));
                     this.items.set(i, itemstack);
                 }
             }
 
             @Override
-            public ListTag createTag() {
+            public ListTag createTag(HolderLookup.Provider pRegistries) {
                 ListTag $$0 = new ListTag();
 
                 for(int i = 0; i < this.getContainerSize(); ++i) {
                     ItemStack $$2 = this.getItem(i);
-                        $$0.add($$2.save(new CompoundTag()));
+                        $$0.add($$2.save(pRegistries, new CompoundTag()));
                 }
                 return $$0;
             }
@@ -69,24 +70,24 @@ public class CraftingStationBlockEntity extends BlockEntity implements MenuProvi
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag) {
-        ListTag compound = this.input.createTag();
+    public void saveAdditional(CompoundTag tag,HolderLookup.Provider pRegistries) {
+        ListTag compound = this.input.createTag(pRegistries);
         tag.put("inv", compound);
         if (this.customName != null) {
-            tag.putString("CustomName", Component.Serializer.toJson(this.customName));
+            tag.putString("CustomName", Component.Serializer.toJson(this.customName,pRegistries));
         }
         tag.putInt("dir",currentContainer.ordinal());
     }
 
     @Override
-    public void load(CompoundTag tag) {
+    public void loadAdditional(CompoundTag tag,HolderLookup.Provider pRegistries) {
         ListTag invTag = tag.getList("inv",Tag.TAG_COMPOUND);
-        input.fromTag(invTag);
+        input.fromTag(invTag,pRegistries);
         if (tag.contains("CustomName", Tag.TAG_STRING)) {
-            this.customName = Component.Serializer.fromJson(tag.getString("CustomName"));
+            this.customName = Component.Serializer.fromJson(tag.getString("CustomName"),pRegistries);
         }
         currentContainer = Direction.values()[tag.getInt("dir")];
-        super.load(tag);
+        super.loadAdditional(tag,pRegistries);
     }
 
     @Nonnull
@@ -118,8 +119,8 @@ public class CraftingStationBlockEntity extends BlockEntity implements MenuProvi
 
     @Nonnull
     @Override
-    public CompoundTag getUpdateTag() {
-        return saveWithoutMetadata();    // okay to send entire inventory on chunk load
+    public CompoundTag getUpdateTag(HolderLookup.Provider pRegistries) {
+        return saveWithoutMetadata(pRegistries);    // okay to send entire inventory on chunk load
     }
 
     @Override

@@ -1,14 +1,14 @@
 package tfar.craftingstation.util;
 
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.IItemHandlerModifiable;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import org.jetbrains.annotations.NotNull;
 
-public class SideContainerForge implements IItemHandlerModifiable,SideContainerWrapper {
+public class SideContainerNeoForge implements IItemHandlerModifiable,SideContainerWrapper {
 
     private final IItemHandlerModifiable handler;
 
-    public SideContainerForge(IItemHandlerModifiable handler) {
+    public SideContainerNeoForge(IItemHandlerModifiable handler) {
         this.handler = handler;
     }
 

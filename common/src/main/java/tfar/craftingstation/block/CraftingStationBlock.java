@@ -54,9 +54,9 @@ public class CraftingStationBlock extends Block implements SimpleWaterloggedBloc
   }
 
   @Override
-  public InteractionResult use(BlockState p_225533_1_, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult p_225533_6_) {
-    if (!world.isClientSide) {
-      BlockEntity tileEntity = world.getBlockEntity(pos);
+  protected InteractionResult useWithoutItem(BlockState pState, Level level, BlockPos pos, Player player, BlockHitResult pHitResult) {
+    if (!level.isClientSide) {
+      BlockEntity tileEntity = level.getBlockEntity(pos);
       if (tileEntity instanceof MenuProvider) {
         Services.PLATFORM.openMenu((ServerPlayer)player, (MenuProvider) tileEntity,pos);
       }

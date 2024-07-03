@@ -1,6 +1,9 @@
 package tfar.craftingstation;
 
 import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.StackedContents;
+import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.inventory.TransientCraftingContainer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
@@ -9,15 +12,26 @@ import net.minecraft.core.NonNullList;
 import javax.annotation.Nonnull;
 import java.util.stream.IntStream;
 
-public class PersistantCraftingContainer extends TransientCraftingContainer {
+public class PersistantCraftingContainer implements CraftingContainer {
 
   private boolean doNotCallUpdates;
+  private final AbstractContainerMenu eventHandler;
   protected final SimpleContainer inv;
 
   public PersistantCraftingContainer(AbstractContainerMenu eventHandler, SimpleContainer itemHandler) {
-    super(eventHandler, 3, 3);
+    this.eventHandler = eventHandler;
     this.inv = itemHandler;
     doNotCallUpdates = false;
+  }
+
+  @Override
+  public int getWidth() {
+    return 3;
+  }
+
+  @Override
+  public int getHeight() {
+    return 3;
   }
 
   /**
@@ -77,7 +91,8 @@ public class PersistantCraftingContainer extends TransientCraftingContainer {
     return s;
   }
 
-  public NonNullList<ItemStack> getStackList(){
+  @Override
+  public NonNullList<ItemStack> getItems(){
     return inv.items;
   }
 
@@ -87,8 +102,23 @@ public class PersistantCraftingContainer extends TransientCraftingContainer {
   }
 
   @Override
+  public int getContainerSize() {
+    return inv.getContainerSize();
+  }
+
+  @Override
   public void clearContent(){
     //dont
+  }
+
+  @Override
+  public void setChanged() {
+    onCraftMatrixChanged();
+  }
+
+  @Override
+  public boolean stillValid(Player player) {
+    return eventHandler.stillValid(player);
   }
 
   /**
@@ -100,9 +130,14 @@ public class PersistantCraftingContainer extends TransientCraftingContainer {
     this.doNotCallUpdates = doNotCallUpdates;
   }
 
+  @Override
+  public void fillStackedContents(StackedContents stackedContents) {
+
+  }
+
   public void onCraftMatrixChanged() {
     if(!doNotCallUpdates) {
-      this.menu.slotsChanged(this);
+      this.eventHandler.slotsChanged(this);
     }
   }
 }

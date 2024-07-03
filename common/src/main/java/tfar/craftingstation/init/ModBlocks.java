@@ -6,7 +6,7 @@ import tfar.craftingstation.block.CraftingStationBlock;
 import tfar.craftingstation.block.CraftingStationSlabBlock;
 
 public class ModBlocks {
-    static Block.Properties wood = Block.Properties.copy(Blocks.CRAFTING_TABLE);
+    static Block.Properties wood = Block.Properties.ofFullCopy(Blocks.CRAFTING_TABLE);
     public static final Block crafting_station = new CraftingStationBlock(wood);
     public static final Block crafting_station_slab = new CraftingStationSlabBlock(wood);
 }

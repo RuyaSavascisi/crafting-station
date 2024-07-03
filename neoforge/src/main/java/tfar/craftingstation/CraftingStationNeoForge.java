@@ -2,69 +2,67 @@ package tfar.craftingstation;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.InterModComms;
-import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.loading.FMLEnvironment;
-import net.minecraftforge.registries.RegisterEvent;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.InterModComms;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.fml.event.lifecycle.InterModEnqueueEvent;
+import net.neoforged.neoforge.common.ModConfigSpec;
+import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
+import net.neoforged.neoforge.registries.RegisterEvent;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import tfar.craftingstation.client.ModClientForge;
+import tfar.craftingstation.client.ModClientNeoForge;
 import tfar.craftingstation.datagen.ModDatagen;
 import tfar.craftingstation.init.ModBlockEntityTypes;
 import tfar.craftingstation.init.ModBlocks;
 import tfar.craftingstation.init.ModMenuTypes;
 import tfar.craftingstation.menu.CraftingStationMenu;
+import tfar.craftingstation.network.PacketHandlerNeoForge;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(CraftingStation.MOD_ID)
-public class CraftingStationForge {
+public class CraftingStationNeoForge {
     // Directly reference a log4j logger.
 
 
 
     public static final Logger LOGGER = LogManager.getLogger();
 
-    public CraftingStationForge() {
+    public CraftingStationNeoForge(IEventBus bus, Dist dist, ModContainer modContainer) {
         // Register the setup method for modloading
-        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, SERVER_SPEC);
-        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, CLIENT_SPEC);
-        IEventBus iEventBus = FMLJavaModLoadingContext.get().getModEventBus();
-        iEventBus.addListener(this::setup);
-        iEventBus.addListener(this::enqueueIMC);
-        iEventBus.addListener(ModDatagen::gather);
-        iEventBus.addListener(RegistryEvents::block);
-        iEventBus.addListener(this::addCreative);
-        if (FMLEnvironment.dist.isClient()) {
-            ModClientForge.setup(iEventBus);
+        modContainer.registerConfig(ModConfig.Type.SERVER, SERVER_SPEC);
+        modContainer.registerConfig(ModConfig.Type.CLIENT, CLIENT_SPEC);
+        bus.addListener(this::setup);
+        bus.addListener(this::enqueueIMC);
+        bus.addListener(ModDatagen::gather);
+        bus.addListener(RegistryEvents::block);
+        bus.addListener(this::addCreative);
+        bus.addListener(PacketHandlerNeoForge::register);
+        if (dist.isClient()) {
+            ModClientNeoForge.setup(bus);
         }
         CraftingStation.init();
     }
 
     public static final Configs.Server SERVER;
-    public static final ForgeConfigSpec SERVER_SPEC;
+    public static final ModConfigSpec SERVER_SPEC;
     public static final Configs.Client CLIENT;
-    public static final ForgeConfigSpec CLIENT_SPEC;
+    public static final ModConfigSpec CLIENT_SPEC;
 
     static {
-        final Pair<Configs.Client, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(Configs.Client::new);
+        final Pair<Configs.Client, ModConfigSpec> specPair = new ModConfigSpec.Builder().configure(Configs.Client::new);
         CLIENT_SPEC = specPair.getRight();
         CLIENT = specPair.getLeft();
-        final Pair<Configs.Server, ForgeConfigSpec> specPair2 = new ForgeConfigSpec.Builder().configure(Configs.Server::new);
+        final Pair<Configs.Server, ModConfigSpec> specPair2 = new ModConfigSpec.Builder().configure(Configs.Server::new);
         SERVER_SPEC = specPair2.getRight();
         SERVER = specPair2.getLeft();
     }

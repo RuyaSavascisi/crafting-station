@@ -1,40 +1,36 @@
 package tfar.craftingstation.menu;
 
+import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.inventory.*;
+import net.minecraft.world.item.crafting.*;
 import tfar.craftingstation.CommonTagUtil;
 import tfar.craftingstation.CraftingStation;
 import tfar.craftingstation.ModIntegration;
 import tfar.craftingstation.PersistantCraftingContainer;
 import tfar.craftingstation.blockentity.CraftingStationBlockEntity;
 import tfar.craftingstation.init.ModMenuTypes;
-import tfar.craftingstation.network.S2CLastRecipePacket;
 import tfar.craftingstation.network.S2CSideSetSideContainerSlot;
 import tfar.craftingstation.platform.Services;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import tfar.craftingstation.slot.SlotFastCraft;
 import tfar.craftingstation.util.SideContainerWrapper;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 public class CraftingStationMenu extends AbstractContainerMenu {
 
@@ -51,8 +47,6 @@ public class CraftingStationMenu extends AbstractContainerMenu {
     public final Map<Direction, Component> containerNames = new EnumMap<>(Direction.class);
     private final Player player;
     private final BlockPos pos;
-    public Recipe<CraftingContainer> lastRecipe;
-    protected Recipe<CraftingContainer> lastLastRecipe;
     private int firstSlot;
 
     public CraftingStationMenu(int id, Inventory inv, BlockPos pos) {
@@ -154,7 +148,6 @@ public class CraftingStationMenu extends AbstractContainerMenu {
     //player inventory | (10 + subContainerSides)
 
     protected void searchSideInventories() {
-        ;
         // detect te
         for (Direction dir : Direction.values()) {
             BlockPos neighbor = pos.relative(dir);
@@ -189,7 +182,7 @@ public class CraftingStationMenu extends AbstractContainerMenu {
 
     private void addOwnSlots() {
         // crafting result
-        this.addSlot(new SlotFastCraft(player, this.craftMatrix, craftResult, 0, 124, 35));
+        this.addSlot(new ResultSlot(player, this.craftMatrix, craftResult, 0, 124, 35));
 
         // crafting grid
         for (int y = 0; y < 3; y++) {
@@ -225,7 +218,7 @@ public class CraftingStationMenu extends AbstractContainerMenu {
 
     @Override
     public void slotsChanged(Container inventory) {
-        this.slotChangedCraftingGrid(world, player, craftMatrix, craftResult);
+        slotChangedCraftingGrid(this,world, player, craftMatrix, craftResult,null);
     }
 
     @Override
@@ -344,76 +337,36 @@ public class CraftingStationMenu extends AbstractContainerMenu {
         return notifySlotAfterTransfer(player, stack, ret, slot);
     }
 
-    protected void slotChangedCraftingGrid(Level world, Player player, CraftingContainer inv, ResultContainer result) {
-        ItemStack itemstack = ItemStack.EMPTY;
-
-        //If polymorph is installed we have to check earlier; the original caching doesn't detect the changed selection. Else, continue as previous.
-        if (Services.PLATFORM.isModLoaded(ModIntegration.POLYMORPH)) {
-            lastRecipe = ModIntegration.findRecipe(this, inv, world, player);
-        } else {
-            // if the recipe is no longer valid, update it
-            if (lastRecipe == null || !lastRecipe.matches(inv, world)) {
-                lastRecipe = ModIntegration.findRecipe(this, inv, world, player);
+    protected static void slotChangedCraftingGrid(
+            AbstractContainerMenu pMenu,
+            Level pLevel,
+            Player pPlayer,
+            CraftingContainer pCraftSlots,
+            ResultContainer pResultSlots,
+            @Nullable RecipeHolder<CraftingRecipe> pRecipe
+    ) {
+        if (!pLevel.isClientSide) {
+            CraftingInput craftinginput = pCraftSlots.asCraftInput();
+            ServerPlayer serverplayer = (ServerPlayer)pPlayer;
+            ItemStack itemstack = ItemStack.EMPTY;
+            Optional<RecipeHolder<CraftingRecipe>> optional = pLevel.getServer()
+                    .getRecipeManager()
+                    .getRecipeFor(RecipeType.CRAFTING, craftinginput, pLevel, pRecipe);
+            if (optional.isPresent()) {
+                RecipeHolder<CraftingRecipe> recipeholder = optional.get();
+                CraftingRecipe craftingrecipe = recipeholder.value();
+                if (pResultSlots.setRecipeUsed(pLevel, serverplayer, recipeholder)) {
+                    ItemStack itemstack1 = craftingrecipe.assemble(craftinginput, pLevel.registryAccess());
+                    if (itemstack1.isItemEnabled(pLevel.enabledFeatures())) {
+                        itemstack = itemstack1;
+                    }
+                }
             }
+
+            pResultSlots.setItem(0, itemstack);
+            pMenu.setRemoteSlot(0, itemstack);
+            serverplayer.connection.send(new ClientboundContainerSetSlotPacket(pMenu.containerId, pMenu.incrementStateId(), 0, itemstack));
         }
-
-        // if the recipe is no longer valid, update it
-        if (lastRecipe == null || !lastRecipe.matches(inv, world)) {
-            lastRecipe = ModIntegration.findRecipe(this, inv, world, player);
-        }
-
-        // if we have a recipe, fetch its result
-        if (lastRecipe != null) {
-            itemstack = lastRecipe.assemble(inv, world.registryAccess());
-        }
-        // set the slot on both sides, client is for display/so the client knows about the recipe
-        result.setItem(0, itemstack);
-
-        // update recipe on server
-        if (!world.isClientSide) {
-            ServerPlayer entityplayermp = (ServerPlayer) player;
-
-            // we need to sync to all players currently in the inventory
-            List<ServerPlayer> relevantPlayers = getAllPlayersWithThisContainerOpen(this, entityplayermp.serverLevel());
-
-            // sync result to all serverside inventories to prevent duplications/recipes being blocked
-            // need to do this every time as otherwise taking items of the result causes desync
-            syncResultToAllOpenWindows(itemstack, relevantPlayers);
-
-            // if the recipe changed, update clients last recipe
-            // this also updates the client side display when the recipe is added
-            if (lastLastRecipe != lastRecipe) {
-                syncRecipeToAllOpenWindows(lastRecipe, relevantPlayers);
-                lastLastRecipe = lastRecipe;
-            }
-        }
-    }
-
-    private void syncResultToAllOpenWindows(final ItemStack stack, List<ServerPlayer> players) {
-        players.forEach(otherPlayer -> {
-            otherPlayer.containerMenu.setItem(0, this.getStateId(), stack);
-            //otherPlayer.connection.sendPacket(new SPacketSetSlot(otherPlayer.openContainer.windowId, SLOT_RESULT, stack));
-        });
-    }
-
-    private void syncRecipeToAllOpenWindows(final Recipe<CraftingContainer> lastRecipe, List<ServerPlayer> players) {
-        players.forEach(otherPlayer -> {
-            // safe cast since hasSameContainerOpen does class checks
-            ((CraftingStationMenu) otherPlayer.containerMenu).lastRecipe = lastRecipe;
-            Services.PLATFORM.sendToClient(new S2CLastRecipePacket(lastRecipe), otherPlayer);
-        });
-    }
-
-    private List<ServerPlayer> getAllPlayersWithThisContainerOpen(CraftingStationMenu container, ServerLevel server) {
-        return server.players().stream()
-                .filter(player -> hasSameContainerOpen(container, player))
-                .collect(Collectors.toList());
-    }
-
-    private boolean hasSameContainerOpen(CraftingStationMenu container, Player playerToCheck) {
-        return playerToCheck instanceof ServerPlayer &&
-                playerToCheck.containerMenu.getClass().isAssignableFrom(container.getClass()) &&
-                this.sameGui((CraftingStationMenu) playerToCheck.containerMenu);
     }
 
     public boolean sameGui(CraftingStationMenu otherContainer) {
@@ -483,7 +436,7 @@ public class CraftingStationMenu extends AbstractContainerMenu {
                 slotStack = targetSlot.getItem();
 
                 if (!slotStack.isEmpty()
-                        && ItemStack.isSameItemSameTags(stack, slotStack)
+                        && ItemStack.isSameItemSameComponents(stack, slotStack)
                         && this.canTakeItemForPickAll(stack, targetSlot)) {
                     int l = slotStack.getCount() + stack.getCount();
                     int limit = targetSlot.getMaxStackSize(stack);
@@ -543,12 +496,6 @@ public class CraftingStationMenu extends AbstractContainerMenu {
         return slot.container != craftResult && super.canTakeItemForPickAll(stack, slot);
     }
 
-    public void updateLastRecipeFromServer(Recipe<CraftingContainer> recipe) {
-        lastRecipe = recipe;
-        // if no recipe, set to empty to prevent ghost outputs when another player grabs the result
-        this.craftResult.setItem(0, recipe != null ? recipe.assemble(craftMatrix, world.registryAccess()) : ItemStack.EMPTY);
-    }
-
     public boolean needsScroll() {
         return getCurrentHandler().$getSlotCount() > MAX_SLOTS;
     }
@@ -557,11 +504,6 @@ public class CraftingStationMenu extends AbstractContainerMenu {
 
     public void setCurrentContainer(Direction currentContainer) {
         this.currentContainer = currentContainer;
-    }
-
-
-    public NonNullList<ItemStack> getRemainingItems() {
-        return lastRecipe != null && lastRecipe.matches(craftMatrix, world) ? lastRecipe.getRemainingItems(craftMatrix) : craftMatrix.getStackList();
     }
 
 
@@ -632,7 +574,7 @@ public class CraftingStationMenu extends AbstractContainerMenu {
     public void synchronizeSlotToRemote(int pSlotIndex, ItemStack pStack, Supplier<ItemStack> pSupplier) {
         if (!this.suppressRemoteUpdates) {
             ItemStack itemstack = this.remoteSlots.get(pSlotIndex);
-            if (true || !ItemStack.matches(itemstack, pStack)) {
+            if (true) {
                 ItemStack itemstack1 = pSupplier.get();
                 this.remoteSlots.set(pSlotIndex, itemstack1);
                 if (this.synchronizer != null) {

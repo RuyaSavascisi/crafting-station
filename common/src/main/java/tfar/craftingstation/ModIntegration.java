@@ -4,19 +4,14 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.CraftingContainer;
-import net.minecraft.world.item.crafting.CraftingRecipe;
-import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import tfar.craftingstation.menu.CraftingStationMenu;
 import tfar.craftingstation.platform.Services;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Optional;
 
 public class ModIntegration {
 
@@ -54,16 +49,6 @@ public class ModIntegration {
             return GET_TILE_ENTITY_METHOD != null ? (BlockEntity) GET_TILE_ENTITY_METHOD.invoke(null, pos, world) : world.getBlockEntity(pos);
         } catch (IllegalAccessException | InvocationTargetException ignored) {
             return world.getBlockEntity(pos);
-        }
-    }
-
-
-    public static Recipe<CraftingContainer> findRecipe(CraftingStationMenu menu, CraftingContainer inv, Level world, Player player) {
-        try {
-            return GET_PLAYER_RECIPE != null ?((Optional<CraftingRecipe>) GET_PLAYER_RECIPE.invoke(null,menu,RecipeType.CRAFTING,inv,world,player)).stream().findFirst().orElse(null)
-                    : world.getRecipeManager().getRecipeFor(RecipeType.CRAFTING,inv,world).stream().findFirst().orElse(null);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            return world.getRecipeManager().getRecipeFor(RecipeType.CRAFTING,inv,world).stream().findFirst().orElse(null);
         }
     }
 

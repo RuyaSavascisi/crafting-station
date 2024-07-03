@@ -1,27 +1,24 @@
 package tfar.craftingstation.network;
 
 import net.minecraft.core.Direction;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.item.ItemStack;
 import tfar.craftingstation.client.ModClient;
 
-public class S2CSideSetSideContainerSlot implements S2CModPacket{
+public record S2CSideSetSideContainerSlot(ItemStack stack, Direction direction, int slot) implements S2CModPacket {
 
-    public final ItemStack stack;
-    public final Direction direction;
-    public final int slot;
-
-    public S2CSideSetSideContainerSlot(ItemStack stack, Direction direction, int slot) {
-        this.stack = stack;
-        this.direction = direction;
-        this.slot = slot;
-    }
-
-    public S2CSideSetSideContainerSlot(FriendlyByteBuf buf) {
-        stack = buf.readItem();
-        direction = buf.readEnum(Direction.class);
-        slot = buf.readInt();
-    }
+    public static final CustomPacketPayload.Type<S2CSideSetSideContainerSlot> TYPE = new CustomPacketPayload.Type<>(PacketHandler.packet(S2CSideSetSideContainerSlot.class));
+    public static final StreamCodec<RegistryFriendlyByteBuf, S2CSideSetSideContainerSlot> STREAM_CODEC = StreamCodec.composite(
+            ItemStack.STREAM_CODEC,
+            S2CSideSetSideContainerSlot::stack,
+            Direction.STREAM_CODEC,
+            S2CSideSetSideContainerSlot::direction,
+            ByteBufCodecs.INT,
+            S2CSideSetSideContainerSlot::slot,
+            S2CSideSetSideContainerSlot::new);
 
 
     @Override
@@ -30,9 +27,7 @@ public class S2CSideSetSideContainerSlot implements S2CModPacket{
     }
 
     @Override
-    public void write(FriendlyByteBuf to) {
-        to.writeItem(stack);
-        to.writeEnum(direction);
-        to.writeInt(slot);
+    public Type<S2CSideSetSideContainerSlot> type() {
+        return TYPE;
     }
 }

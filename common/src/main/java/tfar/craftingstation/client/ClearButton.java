@@ -4,7 +4,9 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 
 public class ClearButton extends Button {
@@ -14,6 +16,9 @@ public class ClearButton extends Button {
     super(x, y, widthIn, heightIn, Component.empty(), callback,Button.DEFAULT_NARRATION);
   }
 
+  private static final WidgetSprites SPRITES = new WidgetSprites(ResourceLocation.withDefaultNamespace("widget/button"), ResourceLocation.withDefaultNamespace("widget/button_disabled"), ResourceLocation.withDefaultNamespace("widget/button_highlighted"));
+
+
 
   @Override
   public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
@@ -21,7 +26,7 @@ public class ClearButton extends Button {
     guiGraphics.setColor(1,0,0,this.alpha);
     RenderSystem.enableBlend();
     RenderSystem.enableDepthTest();
-    guiGraphics.blitNineSliced(WIDGETS_LOCATION, this.getX(), this.getY(), this.getWidth(), this.getHeight(), 20, 4, 200, 20, 0, this.getTextureY());
+    guiGraphics.blitSprite(SPRITES.get(this.active, this.isHoveredOrFocused()), this.getX(), this.getY(), this.getWidth(), this.getHeight());
     guiGraphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
     int i = 0xff0000;//getFGColor();
     this.renderString(guiGraphics, minecraft.font, i | Mth.ceil(this.alpha * 255.0F) << 24);

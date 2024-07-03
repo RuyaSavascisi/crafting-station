@@ -2,15 +2,16 @@ package tfar.craftingstation.client;
 
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import tfar.craftingstation.init.ModBlockEntityTypes;
 import tfar.craftingstation.init.ModMenuTypes;
 
-public class ModClientForge {
+public class ModClientNeoForge {
 
   public static void setup(IEventBus bus) {
-    bus.addListener(ModClientForge::doClientStuff);
+    bus.addListener(ModClientNeoForge::doClientStuff);
   }
 
   static void doClientStuff(final FMLClientSetupEvent event) {

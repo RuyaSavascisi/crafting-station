@@ -30,9 +30,9 @@ public class CraftingStationSlabBlock extends SlabBlock implements EntityBlock {
   }
 
   @Override
-  public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult p_225533_6_) {
-    if (!world.isClientSide) {
-      MenuProvider iNamedContainerProvider = getMenuProvider(state,world,pos);
+  protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult pHitResult) {
+    if (!level.isClientSide) {
+      MenuProvider iNamedContainerProvider = getMenuProvider(state,level,pos);
       if (iNamedContainerProvider != null) {
         Services.PLATFORM.openMenu((ServerPlayer)player, iNamedContainerProvider,pos);
       }

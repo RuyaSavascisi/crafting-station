@@ -1,8 +1,7 @@
 package tfar.craftingstation;
 
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec;
 import tfar.craftingstation.platform.MLConfig;
-import tfar.craftingstation.platform.Services;
 
 public class Configs implements MLConfig {
 
@@ -18,9 +17,9 @@ public class Configs implements MLConfig {
 
     public static class Client {
 
-      public static ForgeConfigSpec.BooleanValue showItemsInTable;
+      public static ModConfigSpec.BooleanValue showItemsInTable;
 
-    Client(ForgeConfigSpec.Builder builder) {
+    Client(ModConfigSpec.Builder builder) {
       builder.push("general");
       showItemsInTable = builder
               .comment("Display Items in Table?")
@@ -32,10 +31,10 @@ public class Configs implements MLConfig {
 
   public static class Server {
 
-      public static ForgeConfigSpec.BooleanValue sideInventories;
+      public static ModConfigSpec.BooleanValue sideInventories;
 
 
-      Server(ForgeConfigSpec.Builder builder) {
+      Server(ModConfigSpec.Builder builder) {
           builder.push("general");
           sideInventories = builder
                   .comment("Are side inventories displayed in the crafting grid?")
