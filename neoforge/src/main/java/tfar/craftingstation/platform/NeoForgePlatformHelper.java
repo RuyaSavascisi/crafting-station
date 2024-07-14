@@ -64,7 +64,6 @@ public class NeoForgePlatformHelper implements IPlatformHelper {
     @Override
     public <MSG extends C2SModPacket> void registerServerPacket(CustomPacketPayload.Type<MSG> type, StreamCodec<RegistryFriendlyByteBuf, MSG> streamCodec) {
         registrar.playToServer(type, streamCodec, (p, t) -> p.handleServer((ServerPlayer) t.player()));
-
     }
 
     @Override
